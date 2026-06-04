@@ -40,7 +40,7 @@ function App() {
 
         <Route
           path="/register"
-          element={<RegisterComponent setIsLoggedIn={setIsLoggedIn} />}
+          element={<RegisterComponent />}
         />
 
         <Route path="*" element={<ErrorPageNotFoundComponent />} />

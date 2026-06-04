@@ -3,12 +3,9 @@ import "../App.css";
 import { useNavigate } from "react-router-dom";
 
 interface RegisterComponentProps {
-  setIsLoggedIn: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
-const RegisterComponent: React.FC<RegisterComponentProps> = ({
-  setIsLoggedIn,
-}) => {
+const RegisterComponent: React.FC<RegisterComponentProps> = ({}) => {
   const navigate = useNavigate();
 
   const [email, setEmail] = useState<string>("");
@@ -50,8 +47,7 @@ const RegisterComponent: React.FC<RegisterComponentProps> = ({
       .then((response: Response) => response.json())
       .then((data: { registerStatus: string; errorMessage: string }) => {
         if (data.registerStatus === "success") {
-          setIsLoggedIn(true);
-          navigate("/home");
+            navigate("/login");
         } else {
           setRegisterError(
             data.errorMessage || "An error occurred during registration."

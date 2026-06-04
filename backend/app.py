@@ -3,6 +3,8 @@ from flask_cors import CORS
 from dotenv import load_dotenv
 import os
 import psycopg2
+import bcrypt
+
 
 load_dotenv()
 conn = psycopg2.connect(os.getenv('DATABASE_URL'))
@@ -16,19 +18,21 @@ CORS(app, supports_credentials=True, origins=[os.getenv('FRONTEND_URL')])
 @app.post("/auth/login")
 def process_login():
     data = request.get_json()
-    ##############################
-    # Check for login status heree
-    ###############################
-    
-    #tmp stuffs
-    loginSuccess = True #tmp set true
-    user_id = 123
-    username = "UrMom"
 
-    if loginSuccess:
-        session["user_id"] = user_id
-        session["username"] = username
-        return {"loginStatus" : "success"}
+    cur.execute("SELECT id, password FROM users where username = %s", (data["username"],))
+    user = cur.fetchone()
+
+    if not user:
+        return {"loginStatus" : "fail", "errorMessage" : "Invalid username or password"}
+    
+    password_match = bcrypt.checkpw(data["password"].encode('utf-8'), user[1].encode('utf-8'))
+    
+    if not password_match:
+        return {"loginStatus" : "fail", "errorMessage" : "Invalid username or password"}
+
+    session["user_id"] = user[0]
+    session["username"] = data["username"]
+    return {"loginStatus" : "success"}
 
 @app.post("/auth/register")
 def process_register():
@@ -46,10 +50,12 @@ def process_register():
     if not register_success:
         return {"registerStatus" : "fail", "errorMessage" : error_message}
 
-    #insert into db (RMBBBB IMPLEMENT HASH PW LATERRRRRR!!!!!)
+    #store in db
+    hashed_pw = bcrypt.hashpw(data["password"].encode('utf-8'), bcrypt.gensalt()) #hash pw first
     cur.execute("INSERT INTO users (email, username, first_name, last_name, password) VALUES (%s, %s, %s, %s, %s)",
-                (data["email"], data["username"], data["first_name"], data["last_name"], data["password"]))
+                (data["email"], data["username"], data["first_name"], data["last_name"], hashed_pw.decode('utf-8'))) #store hashed pw in db, decode to convert bytes to string
     conn.commit() #save changes to db
+    #extra info: use encode('utf-8') to convert string to bytes datatype
     
     #get the id
     cur.execute("SELECT id FROM users where username = %s", (data["username"],))
