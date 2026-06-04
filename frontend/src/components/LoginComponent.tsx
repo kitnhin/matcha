@@ -17,8 +17,11 @@ const LoginComponent: React.FC<LoginComponentProps> = ({ setIsLoggedIn }) => {
   function handleSubmit(event: React.SubmitEvent<HTMLFormElement>) {
     event.preventDefault();
 
-    fetch("http://localhost:5050/login", {
+    const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
+
+    fetch(`${BACKEND_URL}/auth/login`, {
       method: "POST",
+      credentials: "include",
       headers: {
         "Content-Type": "application/json",
       },
@@ -61,11 +64,11 @@ const LoginComponent: React.FC<LoginComponentProps> = ({ setIsLoggedIn }) => {
 
           <div className="flex flex-col gap-1">
             <div className="flex items-center justify-between">
-            <label className="text-sm font-medium text-gray-700">
-              Password
-            </label>
-            <button
-              type="button"
+              <label className="text-sm font-medium text-gray-700">
+                Password
+              </label>
+              <button
+                type="button"
                 onClick={() => {
                   setShowPassword(!showPassword);
                 }}
@@ -73,28 +76,40 @@ const LoginComponent: React.FC<LoginComponentProps> = ({ setIsLoggedIn }) => {
               >
                 {showPassword ? "Hide" : "Show"}
               </button>
-              </div>
-              <input
-                type={showPassword ? "text" : "password"}
-                onChange={(e) => {
-                  setLoginPassword(e.target.value);
-                }}
-                className="rounded-md border border-gray-300 px-3 py-2 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
-              />
+            </div>
+
+            <input
+              type={showPassword ? "text" : "password"}
+              onChange={(e) => {
+                setLoginPassword(e.target.value);
+              }}
+              className="rounded-md border border-gray-300 px-3 py-2 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
+            />
           </div>
+
+          {loginError && (
+            <p className="text-center text-sm text-red-600">
+              Invalid username or password. Please try again.
+            </p>
+          )}
 
           <button
             type="submit"
-            className="mt-2 rounded-md bg-blue-600 px-4 py-2 font-medium text-white hover:bg-blue-700 active:bg-blue-800"
+            className="mt-1 rounded-md bg-blue-600 px-4 py-2 font-medium text-white hover:bg-blue-700"
           >
             Submit
           </button>
+
+          <button
+            type="button"
+            className="rounded-md border border-blue-600 px-4 py-2 font-medium text-blue-600 hover:bg-blue-50"
+            onClick={() => {
+              navigate("/register");
+            }}
+          >
+            Register an account
+          </button>
         </form>
-        {loginError && (
-          <p className="mt-4 text-center text-sm text-red-600">
-            Invalid username or password. Please try again.
-          </p>
-        )}
       </div>
     </div>
   );
