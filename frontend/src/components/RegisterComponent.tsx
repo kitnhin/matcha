@@ -3,19 +3,24 @@ import "../App.css";
 import { useNavigate } from "react-router-dom";
 
 interface RegisterComponentProps {
-    setIsLoggedIn: React.Dispatch<React.SetStateAction<boolean>>;
+  setIsLoggedIn: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
-const RegisterComponent: React.FC<RegisterComponentProps> = ({setIsLoggedIn}) => {
+const RegisterComponent: React.FC<RegisterComponentProps> = ({
+  setIsLoggedIn,
+}) => {
+  const navigate = useNavigate();
 
-    const navigate = useNavigate();
-
-  const [registerUsername, setRegisterUsername] = useState<string>("");
-  const [registerPassword1, setRegisterPassword1] = useState<string>("");
-  const [registerPassword2, setRegisterPassword2] = useState<string>("");
+  const [email, setEmail] = useState<string>("");
+  const [username, setUsername] = useState<string>("");
+  const [firstName, setFirstName] = useState<string>("");
+  const [lastName, setLastName] = useState<string>("");
+  const [password1, setPassword1] = useState<string>("");
+  const [password2, setPassword2] = useState<string>("");
   const [showPassword1, setShowPassword1] = useState<boolean>(false);
   const [showPassword2, setShowPassword2] = useState<boolean>(false);
-  const [passwordMismatchError, setPasswordMismatchError] = useState<boolean>(false);
+  const [passwordMismatchError, setPasswordMismatchError] =
+    useState<boolean>(false);
   const [registerError, setRegisterError] = useState<string>("");
 
   function handleSubmit(event: React.SubmitEvent<HTMLFormElement>) {
@@ -23,9 +28,9 @@ const RegisterComponent: React.FC<RegisterComponentProps> = ({setIsLoggedIn}) =>
 
     const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
-    if (registerPassword1 !== registerPassword2) {
-        setPasswordMismatchError(true);
-        return;
+    if (password1 !== password2) {
+      setPasswordMismatchError(true);
+      return;
     }
 
     fetch(`${BACKEND_URL}/auth/register`, {
@@ -35,17 +40,22 @@ const RegisterComponent: React.FC<RegisterComponentProps> = ({setIsLoggedIn}) =>
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        username: registerUsername,
-        password: registerPassword1,
+        email: email,
+        username: username,
+        first_name: firstName,
+        last_name: lastName,
+        password: password1,
       }),
     })
       .then((response: Response) => response.json())
-      .then((data: { registerStatus: string, errorMessage: string }) => {
+      .then((data: { registerStatus: string; errorMessage: string }) => {
         if (data.registerStatus === "success") {
           setIsLoggedIn(true);
           navigate("/home");
         } else {
-          setRegisterError(data.errorMessage || "An error occurred during registration.");
+          setRegisterError(
+            data.errorMessage || "An error occurred during registration."
+          );
         }
       });
   }
@@ -60,12 +70,51 @@ const RegisterComponent: React.FC<RegisterComponentProps> = ({setIsLoggedIn}) =>
         <form className="flex flex-col gap-4" onSubmit={handleSubmit}>
           <div className="flex flex-col gap-1">
             <label className="text-sm font-medium text-gray-700">
+              Email
+            </label>
+            <input
+              type="text"
+              onChange={(e) => {
+                setEmail(e.target.value);
+              }}
+              className="rounded-md border border-gray-300 px-3 py-2 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
+            />
+          </div>
+
+          <div className="flex flex-col gap-1">
+            <label className="text-sm font-medium text-gray-700">
               Username
             </label>
             <input
               type="text"
               onChange={(e) => {
-                setRegisterUsername(e.target.value);
+                setUsername(e.target.value);
+              }}
+              className="rounded-md border border-gray-300 px-3 py-2 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
+            />
+          </div>
+
+          <div className="flex flex-col gap-1">
+            <label className="text-sm font-medium text-gray-700">
+              First name
+            </label>
+            <input
+              type="text"
+              onChange={(e) => {
+                setFirstName(e.target.value);
+              }}
+              className="rounded-md border border-gray-300 px-3 py-2 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
+            />
+          </div>
+
+          <div className="flex flex-col gap-1">
+            <label className="text-sm font-medium text-gray-700">
+              Last name
+            </label>
+            <input
+              type="text"
+              onChange={(e) => {
+                setLastName(e.target.value);
               }}
               className="rounded-md border border-gray-300 px-3 py-2 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
             />
@@ -89,7 +138,7 @@ const RegisterComponent: React.FC<RegisterComponentProps> = ({setIsLoggedIn}) =>
             <input
               type={showPassword1 ? "text" : "password"}
               onChange={(e) => {
-                setRegisterPassword1(e.target.value);
+                setPassword1(e.target.value);
               }}
               className="rounded-md border border-gray-300 px-3 py-2 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
             />
@@ -113,16 +162,14 @@ const RegisterComponent: React.FC<RegisterComponentProps> = ({setIsLoggedIn}) =>
             <input
               type={showPassword2 ? "text" : "password"}
               onChange={(e) => {
-                setRegisterPassword2(e.target.value);
+                setPassword2(e.target.value);
               }}
               className="rounded-md border border-gray-300 px-3 py-2 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
             />
           </div>
 
           {registerError !== "" && (
-            <p className="text-center text-sm text-red-600">
-              {registerError}
-            </p>
+            <p className="text-center text-sm text-red-600">{registerError}</p>
           )}
 
           {passwordMismatchError && (
@@ -137,11 +184,10 @@ const RegisterComponent: React.FC<RegisterComponentProps> = ({setIsLoggedIn}) =>
           >
             Submit
           </button>
-
         </form>
       </div>
     </div>
   );
-}
+};
 
 export default RegisterComponent;

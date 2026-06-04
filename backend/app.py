@@ -2,20 +2,16 @@ from flask import Flask, request, session
 from flask_cors import CORS
 from dotenv import load_dotenv
 import os
+import psycopg2
 
 load_dotenv()
+conn = psycopg2.connect(os.getenv('DATABASE_URL'))
+cur = conn.cursor()
 
 app = Flask(__name__)
 app.secret_key = os.getenv('SECRET_KEY')
 CORS(app, supports_credentials=True, origins=[os.getenv('FRONTEND_URL')])
 
-@app.get("/api/test")
-def test():
-    return {"message": "Hello from flask22"}
-
-@app.get("/")
-def home():
-    return "Default route reached"
 
 @app.post("/auth/login")
 def process_login():
@@ -37,21 +33,29 @@ def process_login():
 @app.post("/auth/register")
 def process_register():
     data = request.get_json()
-    ##############################
-    # Check for register status heree
-    ###############################
+    register_success = True
+    error_message = ""
 
-    #tmp vars
-    registerSuccess = True
-    user_id = 123
-    username = "UrMom"
+    #check for duplicate name
+    cur.execute("SELECT * FROM users where username = %s", (data["username"],))
+    same_username_user = cur.fetchone()
+    if same_username_user:
+        register_success = False
+        error_message = "Username already exists"
+
+    if not register_success:
+        return {"registerStatus" : "fail", "errorMessage" : error_message}
+
+    #insert into db (RMBBBB IMPLEMENT HASH PW LATERRRRRR!!!!!)
+    cur.execute("INSERT INTO users (email, username, first_name, last_name, password) VALUES (%s, %s, %s, %s, %s)",
+                (data["email"], data["username"], data["first_name"], data["last_name"], data["password"]))
+    conn.commit() #save changes to db
     
-    if registerSuccess:
-        session["user_id"] = user_id
-        session["username"] = username
-        return {"registerStatus" : "success"}
+    #get the id
+    cur.execute("SELECT id FROM users where username = %s", (data["username"],))
+    user_id = cur.fetchone()[0]
 
-    return {"registerStatus" : "fail", "errorMessage" : "Username already exists"}
+    return {"registerStatus" : "success"}
 
 @app.get("/auth/check")
 def auth_check():
@@ -64,4 +68,26 @@ def process_logout():
     session.clear()
     return {"logoutStatus" : "success"}
 
+@app.get("/auth/verify/<token>")
+def verify_user(token):
+    cur.execute("SELECT * FROM users where verification_token = %s", (token,))
+    user = cur.fetchone()
+    if user:
+        cur.execute("UPDATE users set is_verified = true, verification_token = NULL where verification token = %s", (token))
+        cur.commit()
+        return {"verificationStatus" : "success"}
+    return {"verificationStatus" : "fail"}
+
 app.run(debug=True, port=5050)
+
+
+
+
+
+# @app.get("/api/test")
+# def test():
+#     return {"message": "Hello from flask22"}
+
+# @app.get("/")
+# def home():
+#     return "Default route reached"

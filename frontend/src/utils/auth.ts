@@ -16,10 +16,6 @@ export function check_auth(setIsLoggedIn: (value: boolean) => void, navigate: Re
         setIsLoggedIn(true);
         navigate("/home");
       }
-      else {
-        setIsLoggedIn(false);
-        navigate("/login")
-      }
     });
 }
 

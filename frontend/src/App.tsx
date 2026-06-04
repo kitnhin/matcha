@@ -12,6 +12,8 @@ function App() {
   const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
 
   const navigate = useNavigate();
+
+  //checks if the user is already logged in immediately when the page loads
   useEffect(() => {
     check_auth(setIsLoggedIn, navigate);
   }, []);
