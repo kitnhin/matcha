@@ -2,8 +2,7 @@ import { useState } from "react";
 import "../App.css";
 import { useNavigate } from "react-router-dom";
 
-interface RegisterComponentProps {
-}
+interface RegisterComponentProps {}
 
 const RegisterComponent: React.FC<RegisterComponentProps> = ({}) => {
   const navigate = useNavigate();
@@ -19,6 +18,7 @@ const RegisterComponent: React.FC<RegisterComponentProps> = ({}) => {
   const [passwordMismatchError, setPasswordMismatchError] =
     useState<boolean>(false);
   const [registerError, setRegisterError] = useState<string>("");
+  const [registerDone, setRegisterDone] = useState<boolean>(false);
 
   function handleSubmit(event: React.SubmitEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -47,7 +47,7 @@ const RegisterComponent: React.FC<RegisterComponentProps> = ({}) => {
       .then((response: Response) => response.json())
       .then((data: { registerStatus: string; errorMessage: string }) => {
         if (data.registerStatus === "success") {
-            navigate("/login");
+          setRegisterDone(true)
         } else {
           setRegisterError(
             data.errorMessage || "An error occurred during registration."
@@ -65,9 +65,7 @@ const RegisterComponent: React.FC<RegisterComponentProps> = ({}) => {
 
         <form className="flex flex-col gap-4" onSubmit={handleSubmit}>
           <div className="flex flex-col gap-1">
-            <label className="text-sm font-medium text-gray-700">
-              Email
-            </label>
+            <label className="text-sm font-medium text-gray-700">Email</label>
             <input
               type="text"
               onChange={(e) => {
@@ -181,6 +179,15 @@ const RegisterComponent: React.FC<RegisterComponentProps> = ({}) => {
             Submit
           </button>
         </form>
+
+        {registerDone && (
+          <div className="fixed inset-0 flex items-center justify-center bg-white">
+            <p className="text-green-600 text-center text-4xl">
+              Registration successful. Please click the link in the confirmation
+              email to activate your account.
+            </p>
+          </div>
+        )}
       </div>
     </div>
   );

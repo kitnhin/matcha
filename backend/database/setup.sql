@@ -15,7 +15,8 @@ CREATE TABLE IF NOT EXISTS users (
     last_seen TIMESTAMP,
     is_online BOOLEAN DEFAULT FALSE,
     is_verified BOOLEAN DEFAULT FALSE,
-    is_complete BOOLEAN DEFAULT FALSE
+    is_complete BOOLEAN DEFAULT FALSE,
+    verification_token TEXT
 );
 
 CREATE TABLE IF NOT EXISTS tags (

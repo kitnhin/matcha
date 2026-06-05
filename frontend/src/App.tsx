@@ -7,6 +7,7 @@ import ErrorPageNotFoundComponent from "./components/ErrorPageNotFoundComponent"
 import RegisterComponent from "./components/RegisterComponent";
 import { check_auth } from "./utils/auth";
 import { useNavigate } from "react-router-dom";
+import VerifyEmailComponent from "./components/VerifyEmailComponent";
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
@@ -21,7 +22,6 @@ function App() {
   return (
     <>
       <Routes>
-
         <Route
           path="/login"
           element={<LoginComponent setIsLoggedIn={setIsLoggedIn} />}
@@ -38,10 +38,9 @@ function App() {
           }
         />
 
-        <Route
-          path="/register"
-          element={<RegisterComponent />}
-        />
+        <Route path="/register" element={<RegisterComponent />} />
+
+        <Route path="/auth/verify" element={<VerifyEmailComponent />} />
 
         <Route path="*" element={<ErrorPageNotFoundComponent />} />
       </Routes>
