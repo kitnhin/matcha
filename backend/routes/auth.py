@@ -12,6 +12,7 @@ auth_bp = Blueprint('auth', __name__)
 def process_login():
     data = request.get_json()
 
+    #checks
     cur.execute("SELECT id, password FROM users where username = %s", (data["username"],))
     user = cur.fetchone()
 
@@ -22,10 +23,15 @@ def process_login():
     
     if not password_match:
         return {"loginStatus" : "fail", "errorMessage" : "Invalid username or password"}
+    
+
+    #get user data
+    cur.execute("SELECT is_complete FROM users where username = %s", (data["username"],))
+    is_complete = cur.fetchone()[0]
 
     session["user_id"] = user[0]
     session["username"] = data["username"]
-    return {"loginStatus" : "success"}
+    return {"loginStatus" : "success", "isComplete" : is_complete}
 
 @auth_bp.post("/auth/register")
 def process_register():
@@ -91,3 +97,29 @@ def verify_user():
         conn.commit()
         return {"verificationStatus" : "success"}
     return {"verificationStatus" : "fail"}
+
+@auth_bp.post("/auth/setup")
+def process_setup():
+    data = request.get_json()
+    username = session.get("username")
+    print("setup data: ", data)
+
+    # store data
+    cur.execute("UPDATE users set gender = %s, sexual_preference = %s, "
+                "location = %s, latitude = %s, longitude = %s "
+                "where username = %s", (data["gender"], data["sexual_preference"],
+                                       data["location"], data["latitude"], data["longitude"], username))
+    conn.commit()
+
+    #store tags
+    AVAILABLE_TAGS = ["vegan", "geek", "piercing", "gaming", "anime", "sports"]
+    cur.execute("SELECT id FROM users where username = %s", (username,))
+    print("USERNAMEEEEE =", username)
+    user_id = cur.fetchone()[0]
+    for tag in data["tags"]:
+        if tag in AVAILABLE_TAGS:
+            cur.execute("INSERT INTO tags (user_id, tag) VALUES (%s, %s)", (user_id, tag))
+
+    #store pics
+    
+    return {"setupStatus" : "fail", "errorMessage" : "Not implemented yet"}

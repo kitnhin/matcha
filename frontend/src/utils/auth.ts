@@ -11,10 +11,14 @@ export function check_auth(setIsLoggedIn: (value: boolean) => void, navigate: Re
     },
   })
     .then((response: Response) => response.json())
-    .then((data: { isLoggedIn: boolean }) => {
+    .then((data: { isLoggedIn: boolean, isComplete: boolean}) => {
       if (data.isLoggedIn === true) {
         setIsLoggedIn(true);
-        navigate("/home");
+        if (data.isComplete){
+        navigate("/home");}
+        else {
+            navigate("/setup");
+        }
       }
     });
 }

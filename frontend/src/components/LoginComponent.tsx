@@ -31,10 +31,12 @@ const LoginComponent: React.FC<LoginComponentProps> = ({ setIsLoggedIn }) => {
       }),
     })
       .then((response: Response) => response.json())
-      .then((data: { loginStatus: string }) => {
+      .then((data: { loginStatus: string; isComplete: boolean }) => {
         if (data.loginStatus === "success") {
           setIsLoggedIn(true);
-          navigate("/home");
+          if (data.isComplete) {
+            navigate("/home");
+          } else navigate("/setup");
         } else {
           setLoginError(true);
         }

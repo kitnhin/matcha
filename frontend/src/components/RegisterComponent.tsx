@@ -1,11 +1,9 @@
 import { useState } from "react";
 import "../App.css";
-import { useNavigate } from "react-router-dom";
 
 interface RegisterComponentProps {}
 
 const RegisterComponent: React.FC<RegisterComponentProps> = ({}) => {
-  const navigate = useNavigate();
 
   const [email, setEmail] = useState<string>("");
   const [username, setUsername] = useState<string>("");

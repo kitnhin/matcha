@@ -16,7 +16,8 @@ CREATE TABLE IF NOT EXISTS users (
     is_online BOOLEAN DEFAULT FALSE,
     is_verified BOOLEAN DEFAULT FALSE,
     is_complete BOOLEAN DEFAULT FALSE,
-    verification_token TEXT
+    verification_token TEXT,
+    profile_pic TEXT
 );
 
 CREATE TABLE IF NOT EXISTS tags (
@@ -28,6 +29,5 @@ CREATE TABLE IF NOT EXISTS tags (
 CREATE TABLE IF NOT EXISTS photos (
     row SERIAL PRIMARY KEY,
     user_id INT,
-    picture TEXT,
-    is_pfp BOOLEAN DEFAULT FALSE
+    picture TEXT
 );
