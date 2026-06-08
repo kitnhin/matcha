@@ -5,6 +5,7 @@ import secrets
 from email_validator import validate_email, EmailNotValidError
 from extensions import conn, cur, mail
 import os
+import base64
 
 auth_bp = Blueprint('auth', __name__)
 
@@ -65,7 +66,7 @@ def process_register():
     
 
     # send the email
-    token = secrets.token_urlsafe(32)
+    token = secrets.token_urlsafe(42)
     cur.execute("UPDATE users set verification_token = %s where username = %s", (token, data["username"]))
     conn.commit()
     url = f"{os.getenv('FRONTEND_URL')}/auth/verify?token={token}"
@@ -100,26 +101,36 @@ def verify_user():
 
 @auth_bp.post("/auth/setup")
 def process_setup():
-    data = request.get_json()
+    print("form data: ", request.form)
+    print("form files: ", request.files)
     username = session.get("username")
-    print("setup data: ", data)
 
-    # store data
+    ################################
+    ##Check for valid input hereee##
+    ################################
+
+    # store user data
+    profile_pic = request.files.get("profile_pic")
+    pfp_base64 = base64.b64encode(profile_pic.read()).decode("utf-8")
     cur.execute("UPDATE users set gender = %s, sexual_preference = %s, "
-                "location = %s, latitude = %s, longitude = %s "
-                "where username = %s", (data["gender"], data["sexual_preference"],
-                                       data["location"], data["latitude"], data["longitude"], username))
+                "location = %s, latitude = %s, longitude = %s, "
+                "profile_pic = %s where username = %s", (request.form.get("gender"), request.form.get("sexual_preference"),
+                                        request.form.get("location"), request.form.get("latitude"), request.form.get("longitude"), 
+                                        pfp_base64, username))
     conn.commit()
 
-    #store tags
+    # #store tags
     AVAILABLE_TAGS = ["vegan", "geek", "piercing", "gaming", "anime", "sports"]
     cur.execute("SELECT id FROM users where username = %s", (username,))
-    print("USERNAMEEEEE =", username)
     user_id = cur.fetchone()[0]
-    for tag in data["tags"]:
+    for tag in request.form.getlist("tags"):
         if tag in AVAILABLE_TAGS:
             cur.execute("INSERT INTO tags (user_id, tag) VALUES (%s, %s)", (user_id, tag))
 
     #store pics
+    for pic in request.files.getlist("extra_pics"):
+        pic_base64 = base64.b64encode(pic.read()).decode("utf-8")
+        cur.execute("INSERT INTO pics (user_id, pic) VALUES (%s, %s)", (user_id, pic_base64))
+    conn.commit()
     
     return {"setupStatus" : "fail", "errorMessage" : "Not implemented yet"}

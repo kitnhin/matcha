@@ -178,22 +178,30 @@ const ProfileSetupComponent: React.FC<ProfileSetupProps> = ({
 
     const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
+    // create form data to send to backend
+    let formData = new FormData();
+    formData.append("gender", gender)
+    formData.append("sexual_preference", sexualPreference)
+    for (let i = 0; i < selectedTags.length; i++) {
+      formData.append('tags', selectedTags[i]);
+    }
+    formData.append("location", selectedLocation ? selectedLocation.place_name : "")
+    formData.append("longitude", selectedLocation ? selectedLocation.longitude.toString() : "0")
+    formData.append("latitude", selectedLocation ? selectedLocation.latitude.toString() : "0")
+    if (profilePic) {
+      formData.append("profile_pic", profilePic);
+    }
+    for (let i = 0; i < extraPics.length; i++) {
+        if (extraPics[i]) {
+            formData.append("extra_pics", extraPics[i] as File);
+        }
+    }
+
+
     fetch(`${BACKEND_URL}/auth/setup`, {
       method: "POST",
       credentials: "include",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        gender: gender,
-        sexual_preference: sexualPreference,
-        tags: selectedTags,
-        location: selectedLocation,
-        longitude: selectedLocation ? selectedLocation.longitude : 0,
-        latitude: selectedLocation ? selectedLocation.latitude : 0,
-        profile_pic: profilePic,
-        extra_pics: extraPics,
-      }),
+      body: formData
     })
       .then((response: Response) => response.json())
       .then((data: { loginStatus: string, errorMessage: string}) => {

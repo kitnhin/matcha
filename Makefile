@@ -12,4 +12,9 @@ dropdb:
 	psql postgres -c "DROP DATABASE matcha;"
 	psql postgres -c "DROP USER matcha_user;"
 
+addv:
+	psql -U matcha_user -d matcha -c \
+	"INSERT INTO users (email, username, first_name, last_name, password, is_verified) \
+	VALUES ('ethanlimck@gmail.com', 'kit', 'L', 'K', 123', TRUE);"
+
 all: dropdb initdb

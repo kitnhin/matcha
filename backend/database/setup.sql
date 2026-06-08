@@ -26,8 +26,8 @@ CREATE TABLE IF NOT EXISTS tags (
     tag TEXT
 );
 
-CREATE TABLE IF NOT EXISTS photos (
+CREATE TABLE IF NOT EXISTS pics (
     row SERIAL PRIMARY KEY,
     user_id INT,
-    picture TEXT
+    pic TEXT
 );
