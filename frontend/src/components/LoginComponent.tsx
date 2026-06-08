@@ -13,6 +13,7 @@ const LoginComponent: React.FC<LoginComponentProps> = ({ setIsLoggedIn }) => {
   const [loginPassword, setLoginPassword] = useState<string>("");
   const [loginError, setLoginError] = useState<boolean>(false);
   const [showPassword, setShowPassword] = useState<boolean>(false);
+  const [errorMessage, setErrorMessage] = useState<string>("");
 
   function handleSubmit(event: React.SubmitEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -31,7 +32,7 @@ const LoginComponent: React.FC<LoginComponentProps> = ({ setIsLoggedIn }) => {
       }),
     })
       .then((response: Response) => response.json())
-      .then((data: { loginStatus: string; isComplete: boolean }) => {
+      .then((data: { loginStatus: string, isComplete: boolean, errorMessage: string }) => {
         if (data.loginStatus === "success") {
           setIsLoggedIn(true);
           if (data.isComplete) {
@@ -39,6 +40,7 @@ const LoginComponent: React.FC<LoginComponentProps> = ({ setIsLoggedIn }) => {
           } else navigate("/setup");
         } else {
           setLoginError(true);
+          setErrorMessage(data.errorMessage)
         }
       });
   }
@@ -91,7 +93,7 @@ const LoginComponent: React.FC<LoginComponentProps> = ({ setIsLoggedIn }) => {
 
           {loginError && (
             <p className="text-center text-sm text-red-600">
-              Invalid username or password. Please try again.
+              {errorMessage}
             </p>
           )}
 

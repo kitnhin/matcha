@@ -4,7 +4,6 @@ import "../App.css";
 interface RegisterComponentProps {}
 
 const RegisterComponent: React.FC<RegisterComponentProps> = ({}) => {
-
   const [email, setEmail] = useState<string>("");
   const [username, setUsername] = useState<string>("");
   const [firstName, setFirstName] = useState<string>("");
@@ -13,8 +12,6 @@ const RegisterComponent: React.FC<RegisterComponentProps> = ({}) => {
   const [password2, setPassword2] = useState<string>("");
   const [showPassword1, setShowPassword1] = useState<boolean>(false);
   const [showPassword2, setShowPassword2] = useState<boolean>(false);
-  const [passwordMismatchError, setPasswordMismatchError] =
-    useState<boolean>(false);
   const [registerError, setRegisterError] = useState<string>("");
   const [registerDone, setRegisterDone] = useState<boolean>(false);
 
@@ -24,7 +21,7 @@ const RegisterComponent: React.FC<RegisterComponentProps> = ({}) => {
     const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
     if (password1 !== password2) {
-      setPasswordMismatchError(true);
+      setRegisterError("Password mismatch");
       return;
     }
 
@@ -45,7 +42,7 @@ const RegisterComponent: React.FC<RegisterComponentProps> = ({}) => {
       .then((response: Response) => response.json())
       .then((data: { registerStatus: string; errorMessage: string }) => {
         if (data.registerStatus === "success") {
-          setRegisterDone(true)
+          setRegisterDone(true);
         } else {
           setRegisterError(
             data.errorMessage || "An error occurred during registration."
@@ -162,12 +159,6 @@ const RegisterComponent: React.FC<RegisterComponentProps> = ({}) => {
 
           {registerError !== "" && (
             <p className="text-center text-sm text-red-600">{registerError}</p>
-          )}
-
-          {passwordMismatchError && (
-            <p className="text-center text-sm text-red-600">
-              Passwords do not match. Please try again.
-            </p>
           )}
 
           <button

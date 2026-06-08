@@ -1,11 +1,11 @@
 from flask import Blueprint, request, session
 import bcrypt
-from flask_mail import Mail, Message
+from flask_mail import Message
 import secrets
-from email_validator import validate_email, EmailNotValidError
 from extensions import conn, cur, mail
 import os
 import base64
+from utils.auth_utils import check_register_input, check_setup_input, check_login_input
 
 auth_bp = Blueprint('auth', __name__)
 
@@ -14,6 +14,10 @@ def process_login():
     data = request.get_json()
 
     #checks
+    check_login_res = check_login_input(data)
+    if check_login_res["loginStatus"] == "fail":
+        return {"loginStatus" : "fail", "errorMessage" : "Invalid username or password"}
+
     cur.execute("SELECT id, password FROM users where username = %s", (data["username"],))
     user = cur.fetchone()
 
@@ -25,7 +29,6 @@ def process_login():
     if not password_match:
         return {"loginStatus" : "fail", "errorMessage" : "Invalid username or password"}
     
-
     #get user data
     cur.execute("SELECT is_complete FROM users where username = %s", (data["username"],))
     is_complete = cur.fetchone()[0]
@@ -34,22 +37,15 @@ def process_login():
     session["username"] = data["username"]
     return {"loginStatus" : "success", "isComplete" : is_complete}
 
+
 @auth_bp.post("/auth/register")
 def process_register():
     data = request.get_json()
 
-    #validate email format
-    try:
-        validate_email(data["email"])
-    except EmailNotValidError as e:
-        return {"registerStatus" : "fail", "errorMessage" : "Invalid email"}
-    
-    #check for duplicate email
-    cur.execute("SELECT * FROM users where email = %s", (data["email"],))
-    same_username_user = cur.fetchone()
-    if same_username_user:
-        return {"registerStatus" : "fail", "errorMessage" : "Email already exists"}
-
+    #validate input
+    check_register_res = check_register_input(data)
+    if check_register_res["registerStatus"] == "fail":
+        return check_register_res
 
     #check for duplicate name
     cur.execute("SELECT * FROM users where username = %s", (data["username"],))
@@ -105,19 +101,24 @@ def process_setup():
     print("form files: ", request.files)
     username = session.get("username")
 
-    ################################
-    ##Check for valid input hereee##
-    ################################
+    #validate input
+    check_setup_input_res = check_setup_input(request)
+    if check_setup_input_res["setupStatus"] == "fail":
+        return check_setup_input_res
 
     # store user data
+    cur.execute("UPDATE users set gender = %s, sexual_preference = %s, age = %s, "
+                "location = %s, latitude = %s, longitude = %s where username = %s", 
+                (request.form.get("gender"), request.form.get("sexual_preference"), request.form.get("age"),
+                 request.form.get("location"), request.form.get("latitude"), request.form.get("longitude"), 
+                 username))
+    
     profile_pic = request.files.get("profile_pic")
-    pfp_base64 = base64.b64encode(profile_pic.read()).decode("utf-8")
-    cur.execute("UPDATE users set gender = %s, sexual_preference = %s, "
-                "location = %s, latitude = %s, longitude = %s, "
-                "profile_pic = %s where username = %s", (request.form.get("gender"), request.form.get("sexual_preference"),
-                                        request.form.get("location"), request.form.get("latitude"), request.form.get("longitude"), 
-                                        pfp_base64, username))
+    if profile_pic:
+        pfp_base64 = base64.b64encode(profile_pic.read()).decode("utf-8")
+        cur.execute("UPDATE users set profile_pic = %s where username = %s", (pfp_base64, username))
     conn.commit()
+    
 
     # #store tags
     AVAILABLE_TAGS = ["vegan", "geek", "piercing", "gaming", "anime", "sports"]

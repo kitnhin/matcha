@@ -12,6 +12,7 @@ const ProfileSetupComponent: React.FC<ProfileSetupProps> = ({
   //basics
   const [gender, setGender] = useState<string>("");
   const [sexualPreference, setSexualPreference] = useState<string>("");
+  const [age, setAge] = useState<string>("");
   const AVAILABLE_TAGS = [
     "vegan",
     "geek",
@@ -182,6 +183,7 @@ const ProfileSetupComponent: React.FC<ProfileSetupProps> = ({
     let formData = new FormData();
     formData.append("gender", gender)
     formData.append("sexual_preference", sexualPreference)
+    formData.append("age", age)
     for (let i = 0; i < selectedTags.length; i++) {
       formData.append('tags', selectedTags[i]);
     }
@@ -251,6 +253,20 @@ const ProfileSetupComponent: React.FC<ProfileSetupProps> = ({
               <option value="female">Female</option>
               <option value="others">Others</option>
             </select>
+          </div>
+
+          {/* Age block */}
+          <div className="flex flex-col gap-2">
+            <label className="text-xl font-medium text-gray-700">
+              Age
+            </label>
+            <input
+                type="text"
+                className="rounded-md border px-2 py-1 w-full pr-24"
+                onChange={(e) => {
+                  setAge(e.target.value);
+                }}
+              />
           </div>
 
           {/* Tags block */}

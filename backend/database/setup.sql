@@ -12,12 +12,13 @@ CREATE TABLE IF NOT EXISTS users (
     latitude FLOAT,
     longitude FLOAT,
     location TEXT,
+    profile_pic TEXT,
+    age INT,
     last_seen TIMESTAMP,
     is_online BOOLEAN DEFAULT FALSE,
     is_verified BOOLEAN DEFAULT FALSE,
     is_complete BOOLEAN DEFAULT FALSE,
-    verification_token TEXT,
-    profile_pic TEXT
+    verification_token TEXT
 );
 
 CREATE TABLE IF NOT EXISTS tags (

@@ -15,6 +15,8 @@ dropdb:
 addv:
 	psql -U matcha_user -d matcha -c \
 	"INSERT INTO users (email, username, first_name, last_name, password, is_verified) \
-	VALUES ('ethanlimck@gmail.com', 'kit', 'L', 'K', 123', TRUE);"
+	VALUES ('ethanlimck@gmail.com', 'kit', 'L', 'K', \
+	'$$(python -c "import bcrypt; print(bcrypt.hashpw(b\"123\", bcrypt.gensalt()).decode())")', \
+	TRUE);"
 
 all: dropdb initdb
