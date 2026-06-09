@@ -75,8 +75,11 @@ def process_register():
 
 @auth_bp.get("/auth/check")
 def auth_check():
-    if session.get("user_id"):
-        return {"isLoggedIn" : True}
+    user_id = session.get("user_id")
+    if user_id:
+        cur.execute("SELECT is_complete FROM users where id = %s", (user_id,))
+        is_complete = cur.fetchone()[0]
+        return {"isLoggedIn" : True, "isComplete" : is_complete}
     return {"isLoggedIn" : False}
 
 @auth_bp.post("/auth/logout")
@@ -107,9 +110,9 @@ def process_setup():
         return check_setup_input_res
 
     # store user data
-    cur.execute("UPDATE users set gender = %s, sexual_preference = %s, age = %s, "
+    cur.execute("UPDATE users set gender = %s, sexual_preference = %s, age = %s, biography = %s,"
                 "location = %s, latitude = %s, longitude = %s where username = %s", 
-                (request.form.get("gender"), request.form.get("sexual_preference"), request.form.get("age"),
+                (request.form.get("gender"), request.form.get("sexual_preference"), request.form.get("age"), request.form.get("bio"),
                  request.form.get("location"), request.form.get("latitude"), request.form.get("longitude"), 
                  username))
     
@@ -117,8 +120,6 @@ def process_setup():
     if profile_pic:
         pfp_base64 = base64.b64encode(profile_pic.read()).decode("utf-8")
         cur.execute("UPDATE users set profile_pic = %s where username = %s", (pfp_base64, username))
-    conn.commit()
-    
 
     # #store tags
     AVAILABLE_TAGS = ["vegan", "geek", "piercing", "gaming", "anime", "sports"]
@@ -132,6 +133,8 @@ def process_setup():
     for pic in request.files.getlist("extra_pics"):
         pic_base64 = base64.b64encode(pic.read()).decode("utf-8")
         cur.execute("INSERT INTO pics (user_id, pic) VALUES (%s, %s)", (user_id, pic_base64))
+
+    cur.execute("UPDATE users set is_complete = true where username = %s", (username,))
     conn.commit()
-    
-    return {"setupStatus" : "fail", "errorMessage" : "Not implemented yet"}
+
+    return {"setupStatus" : "success", "errorMessage" : ""}

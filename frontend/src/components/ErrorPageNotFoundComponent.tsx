@@ -7,7 +7,6 @@ const ErrorPageNotFoundComponent: React.FC<
 > = ({}) => {
   return (
     <h1 className="min-w-screen text-center text-5xl mt-10">
-      {" "}
       Error 404: Page Not Found
     </h1>
   );

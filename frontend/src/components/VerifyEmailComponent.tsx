@@ -24,7 +24,7 @@ const VerifyEmailComponent: React.FC<VerifyEmailProps> = ({}) => {
     fetch(`${BACKEND_URL}/auth/verify?token=${token}`)
       .then((response: Response) => response.json())
       .then((data: { verificationStatus: string }) => {
-        console.log(data)
+        // console.log(data)
         if (data.verificationStatus === "success") {
           setVerifySuccess(true);
         } else {

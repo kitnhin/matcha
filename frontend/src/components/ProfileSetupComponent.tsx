@@ -13,6 +13,7 @@ const ProfileSetupComponent: React.FC<ProfileSetupProps> = ({
   const [gender, setGender] = useState<string>("");
   const [sexualPreference, setSexualPreference] = useState<string>("");
   const [age, setAge] = useState<string>("");
+  const [bio, setBio] = useState<string>("");
   const AVAILABLE_TAGS = [
     "vegan",
     "geek",
@@ -131,7 +132,7 @@ const ProfileSetupComponent: React.FC<ProfileSetupProps> = ({
           .then((data: any) => {
             setLocationRes(data);
             setShowLocationRes(true);
-            console.log(data);
+            // console.log(data);
           });
       } catch (error: any) {
         console.log("Nominatim error: ", error);
@@ -166,7 +167,7 @@ const ProfileSetupComponent: React.FC<ProfileSetupProps> = ({
               latitude: latitude,
               longitude: longitude,
             });
-            console.log("auto", data);
+            // console.log("auto", data);
           });
       } catch (error: any) {
         console.log("Nominatim error: ", error);
@@ -181,15 +182,16 @@ const ProfileSetupComponent: React.FC<ProfileSetupProps> = ({
 
     // create form data to send to backend
     let formData = new FormData();
-    formData.append("gender", gender)
-    formData.append("sexual_preference", sexualPreference)
-    formData.append("age", age)
+    formData.append("gender", gender);
+    formData.append("sexual_preference", sexualPreference);
+    formData.append("age", age);
+    formData.append("bio", bio);
     for (let i = 0; i < selectedTags.length; i++) {
       formData.append('tags', selectedTags[i]);
     }
-    formData.append("location", selectedLocation ? selectedLocation.place_name : "")
-    formData.append("longitude", selectedLocation ? selectedLocation.longitude.toString() : "0")
-    formData.append("latitude", selectedLocation ? selectedLocation.latitude.toString() : "0")
+    formData.append("location", selectedLocation ? selectedLocation.place_name : "");
+    formData.append("longitude", selectedLocation ? selectedLocation.longitude.toString() : "0");
+    formData.append("latitude", selectedLocation ? selectedLocation.latitude.toString() : "0");
     if (profilePic) {
       formData.append("profile_pic", profilePic);
     }
@@ -206,8 +208,8 @@ const ProfileSetupComponent: React.FC<ProfileSetupProps> = ({
       body: formData
     })
       .then((response: Response) => response.json())
-      .then((data: { loginStatus: string, errorMessage: string}) => {
-        if (data.loginStatus === "success") {
+      .then((data: { setupStatus: string, errorMessage: string}) => {
+        if (data.setupStatus === "success") {
           setIsLoggedIn(true);
           navigate("/home");
         }
@@ -268,6 +270,22 @@ const ProfileSetupComponent: React.FC<ProfileSetupProps> = ({
                 }}
               />
           </div>
+
+          {/* Bio block */}
+          <div className="flex flex-col gap-2">
+            <label className="text-xl font-medium text-gray-700">
+              Bio
+            </label>
+            <input
+                type="text"
+                className="rounded-md border px-2 py-1 w-full pr-24"
+                onChange={(e) => {
+                  setBio(e.target.value);
+                }}
+              />
+          </div>
+
+
 
           {/* Tags block */}
           <div className="flex flex-col gap-2">
