@@ -10,24 +10,26 @@ interface HomeComponentProps {
 }
 
 const HomeComponent: React.FC<HomeComponentProps> = ({ setIsLoggedIn }) => {
+    const navigate = useNavigate();
+
     const [username, setUsername] = useState<string>("");
     const [fame, setFame] = useState<string>("");
     const [profilePic, setProfilePic] = useState<string>("");
   
     useEffect(() => {
       WS.setup();
-      WS.add_callback("user_display_data", (message) => {
+      WS.add_callback("userHomeData", (message) => {
         setUsername(message.username);
         setFame(message.fame);
         setProfilePic(message.profile_pic);
         console.log(message.profile_pic);
       });
-      WS.send({ page: "home", type: "get_user_display_data" });
+      WS.send({ type: "get_user_home_data" });
     }, []);
   
     return (
       <div className="min-h-screen">
-        {/* Top bar */}
+
         <div className="flex items-center justify-between px-6 py-4">
           <div className="flex items-center gap-4">
             <img
@@ -47,12 +49,17 @@ const HomeComponent: React.FC<HomeComponentProps> = ({ setIsLoggedIn }) => {
           >
             Logout
           </button>
+          <button
+            onClick={() => navigate("/settings")}
+            className="px-4 py-2 text-sm bg-red-500 text-white rounded hover:bg-red-600"
+          >
+            Settings
+          </button>
         </div>
   
-        {/* Divider */}
+
         <hr className="border-gray-300" />
   
-        {/* Center content */}
         <div className="flex flex-col items-center justify-center mt-40">
           <h1 className="text-5xl">Welcome to the home</h1>
           <button

@@ -1,5 +1,6 @@
 import { useState } from "react";
 import "../App.css";
+import NameInputComponent from "./shared/NameInputComponent";
 
 interface RegisterComponentProps {}
 
@@ -70,44 +71,14 @@ const RegisterComponent: React.FC<RegisterComponentProps> = ({}) => {
             />
           </div>
 
-          <div className="flex flex-col gap-1">
-            <label className="text-sm font-medium text-gray-700">
-              Username
-            </label>
-            <input
-              type="text"
-              onChange={(e) => {
-                setUsername(e.target.value);
-              }}
-              className="rounded-md border border-gray-300 px-3 py-2 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
-            />
-          </div>
-
-          <div className="flex flex-col gap-1">
-            <label className="text-sm font-medium text-gray-700">
-              First name
-            </label>
-            <input
-              type="text"
-              onChange={(e) => {
-                setFirstName(e.target.value);
-              }}
-              className="rounded-md border border-gray-300 px-3 py-2 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
-            />
-          </div>
-
-          <div className="flex flex-col gap-1">
-            <label className="text-sm font-medium text-gray-700">
-              Last name
-            </label>
-            <input
-              type="text"
-              onChange={(e) => {
-                setLastName(e.target.value);
-              }}
-              className="rounded-md border border-gray-300 px-3 py-2 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
-            />
-          </div>
+          <NameInputComponent
+            setUsername={setUsername}
+            setFirstName={setFirstName}
+            setLastName={setLastName}
+            username={username}
+            first_name={firstName}
+            last_name={lastName}
+          />
 
           <div className="flex flex-col gap-1">
             <div className="flex items-center justify-between">
@@ -132,7 +103,6 @@ const RegisterComponent: React.FC<RegisterComponentProps> = ({}) => {
               className="rounded-md border border-gray-300 px-3 py-2 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
             />
           </div>
-
           <div className="flex flex-col gap-1">
             <div className="flex items-center justify-between">
               <label className="text-sm font-medium text-gray-700">
@@ -156,11 +126,9 @@ const RegisterComponent: React.FC<RegisterComponentProps> = ({}) => {
               className="rounded-md border border-gray-300 px-3 py-2 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
             />
           </div>
-
           {registerError !== "" && (
             <p className="text-center text-sm text-red-600">{registerError}</p>
           )}
-
           <button
             type="submit"
             className="mt-1 rounded-md bg-blue-600 px-4 py-2 font-medium text-white hover:bg-blue-700"

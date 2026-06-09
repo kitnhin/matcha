@@ -102,7 +102,7 @@ def verify_user():
 def process_setup():
     print("form data: ", request.form)
     print("form files: ", request.files)
-    username = session.get("username")
+    user_id = session.get("user_id")
 
     #validate input
     check_setup_input_res = check_setup_input(request)
@@ -111,20 +111,18 @@ def process_setup():
 
     # store user data
     cur.execute("UPDATE users set gender = %s, sexual_preference = %s, age = %s, biography = %s,"
-                "location = %s, latitude = %s, longitude = %s where username = %s", 
+                "location = %s, latitude = %s, longitude = %s where id = %s", 
                 (request.form.get("gender"), request.form.get("sexual_preference"), request.form.get("age"), request.form.get("bio"),
                  request.form.get("location"), request.form.get("latitude"), request.form.get("longitude"), 
-                 username))
+                 user_id))
     
     profile_pic = request.files.get("profile_pic")
     if profile_pic:
         pfp_base64 = base64.b64encode(profile_pic.read()).decode("utf-8")
-        cur.execute("UPDATE users set profile_pic = %s where username = %s", (pfp_base64, username))
+        cur.execute("UPDATE users set profile_pic = %s where id = %s", (pfp_base64, user_id))
 
     # #store tags
     AVAILABLE_TAGS = ["vegan", "geek", "piercing", "gaming", "anime", "sports"]
-    cur.execute("SELECT id FROM users where username = %s", (username,))
-    user_id = cur.fetchone()[0]
     for tag in request.form.getlist("tags"):
         if tag in AVAILABLE_TAGS:
             cur.execute("INSERT INTO tags (user_id, tag) VALUES (%s, %s)", (user_id, tag))
@@ -134,7 +132,7 @@ def process_setup():
         pic_base64 = base64.b64encode(pic.read()).decode("utf-8")
         cur.execute("INSERT INTO pics (user_id, pic) VALUES (%s, %s)", (user_id, pic_base64))
 
-    cur.execute("UPDATE users set is_complete = true where username = %s", (username,))
+    cur.execute("UPDATE users set is_complete = true where id = %s", (user_id,)) #mark user as complete after setup finishes
     conn.commit()
 
     return {"setupStatus" : "success", "errorMessage" : ""}

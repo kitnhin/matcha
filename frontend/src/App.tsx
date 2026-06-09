@@ -9,6 +9,7 @@ import { check_auth } from "./utils/auth";
 import { useNavigate } from "react-router-dom";
 import VerifyEmailComponent from "./components/VerifyEmailComponent";
 import ProfileSetupComponent from "./components/ProfileSetupComponent";
+import SettingsComponent from "./components/SettingsComponent";
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
@@ -43,9 +44,29 @@ function App() {
 
         <Route path="/auth/verify" element={<VerifyEmailComponent />} />
 
-        <Route path="/setup" element={isLoggedIn ? (<ProfileSetupComponent setIsLoggedIn={setIsLoggedIn} />) : <Navigate to="/login" replace />} />
+        <Route
+          path="/setup"
+          element={
+            isLoggedIn ? (
+              <ProfileSetupComponent setIsLoggedIn={setIsLoggedIn} />
+            ) : (
+              <Navigate to="/login" replace />
+            )
+          }
+        />
 
         <Route path="*" element={<ErrorPageNotFoundComponent />} />
+
+        {isLoggedIn && (
+          <>
+            <Route
+              path="/setup"
+              element={<ProfileSetupComponent setIsLoggedIn={setIsLoggedIn} />}
+            />
+
+            <Route path="/settings" element={<SettingsComponent />} />
+          </>
+        )}
       </Routes>
     </>
   );

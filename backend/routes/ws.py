@@ -1,7 +1,9 @@
 from flask import Blueprint, request, session
 from flask_sock import Sock
 import json
-from pages.home import home_handler
+from pages.home import get_user_home_data
+from routes.settings import get_user_settings_data
+
 
 ws_bp = Blueprint("ws", __name__)
 sock = Sock()
@@ -9,10 +11,9 @@ sock = Sock()
 # handlers
 
 handlers = {
-    "home": home_handler
+    "get_user_home_data": get_user_home_data,
+    "get_user_settings_data": get_user_settings_data
 }
-
-
 
 #main websocket:
 @sock.route("/ws")
@@ -26,9 +27,11 @@ def handle_websocket(ws):
         while True:
             data = ws.receive()
             obj = json.loads(data)
-            page = obj.get("page")
-            if page in handlers:
-                handlers[page](ws, user_id, obj)
+            type = obj.get("type")
+            print(f"Received from client {user_id}: {obj}")
+
+            if type in handlers:
+                handlers[type](ws, user_id, obj)
             # print(f"Received from client {user_id}: {obj}")
             # ws.send(json.dumps({"type": "test", "data": obj["message"]}))
             
