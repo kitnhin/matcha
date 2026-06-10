@@ -10,6 +10,7 @@ import { useNavigate } from "react-router-dom";
 import VerifyEmailComponent from "./components/VerifyEmailComponent";
 import ProfileSetupComponent from "./components/ProfileSetupComponent";
 import SettingsComponent from "./components/SettingsComponent";
+import ForgotPasswordComponent from "./components/ForgotPasswordComponent";
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
@@ -42,7 +43,7 @@ function App() {
 
         <Route path="/register" element={<RegisterComponent />} />
 
-        <Route path="/auth/verify" element={<VerifyEmailComponent />} />
+        <Route path="/verify-email" element={<VerifyEmailComponent />} />
 
         <Route
           path="/setup"
@@ -54,6 +55,8 @@ function App() {
             )
           }
         />
+
+        <Route path="/reset-password" element={<ForgotPasswordComponent />} />
 
         <Route path="*" element={<ErrorPageNotFoundComponent />} />
 

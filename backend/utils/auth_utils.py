@@ -71,30 +71,4 @@ def check_login_input(data):
         return {"loginStatus" : "fail", "errorMessage" : "Invalid username or password"}
     
     return {"loginStatus" : "success"}
-
-def check_settings_input(request): #can move this to settings later
-    
-    #just use the check setup input ft
-    check_setup_input_res = check_setup_input(request)
-    if check_setup_input_res["setupStatus"] == "fail":
-        return {"saveSettingsStatus" : "fail", "errorMessage" : check_setup_input_res["errorMessage"]}
-    
-    #other checks:
-    #validate email format
-    try:
-        validate_email(request.form.get("email", ""))
-    except EmailNotValidError as e:
-        return {"saveSettingsStatus" : "fail", "errorMessage" : "Invalid email"}
-    
-    #validate length
-    if len(request.form.get("username", "")) < 3:
-        return {"saveSettingsStatus" : "fail", "errorMessage" : "Username must be at least 3 characters"}
-    
-    if len(request.form.get("first_name", "")) < 1:
-        return {"saveSettingsStatus" : "fail", "errorMessage" : "First name cannot be empty"}
-    
-    if len(request.form.get("last_name", "")) < 1:
-        return {"saveSettingsStatus" : "fail", "errorMessage" : "Last name cannot be empty"}
-    
-    return {"saveSettingsStatus" : "success", "errorMessage" : ""}
     

@@ -41,7 +41,6 @@ const VerifyEmailComponent: React.FC<VerifyEmailProps> = ({}) => {
       {verifySuccess && (
         <div className="min-h-screen flex flex-col items-center justify-center">
           <h1 className="text-3xl">
-            {" "}
             Your email has been verified, you can now login
           </h1>
           <button

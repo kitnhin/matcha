@@ -1,10 +1,50 @@
 from extensions import conn, cur
 import json
 from flask import request, session, Blueprint
-from utils.auth_utils import check_settings_input
 import base64
+from email_validator import validate_email, EmailNotValidError
+from utils.auth_utils import check_setup_input
+
 
 settings_bp = Blueprint("settings", __name__)
+
+def check_settings_input(request): #can move this to settings later
+    
+    #just use the check setup input ft
+    check_setup_input_res = check_setup_input(request)
+    if check_setup_input_res["setupStatus"] == "fail":
+        return {"saveSettingsStatus" : "fail", "errorMessage" : check_setup_input_res["errorMessage"]}
+    
+    #other checks:
+    try:
+        validate_email(request.form.get("email", ""))
+    except EmailNotValidError as e:
+        return {"saveSettingsStatus" : "fail", "errorMessage" : "Invalid email"}
+
+    if len(request.form.get("username", "")) < 3:
+        return {"saveSettingsStatus" : "fail", "errorMessage" : "Username must be at least 3 characters"}
+    
+    if len(request.form.get("first_name", "")) < 1:
+        return {"saveSettingsStatus" : "fail", "errorMessage" : "First name cannot be empty"}
+    
+    if len(request.form.get("last_name", "")) < 1:
+        return {"saveSettingsStatus" : "fail", "errorMessage" : "Last name cannot be empty"}
+    
+    if len(request.form.get("gender", "")) < 1:
+        return {"setupStatus" : "fail", "errorMessage" : "Select a gender"}
+    
+    if len(request.form.get("sexual_preference", "")) < 1:
+        return {"setupStatus" : "fail", "errorMessage" : "Select a sexual preference"}
+
+    age = request.form.get("age")
+    if len(age) < 1 or age.isdigit() == False or int(age) < 0 or int(age) > 200:
+        return {"setupStatus" : "fail", "errorMessage" : "Invalid age"}
+
+    if len(request.form.get("location", "")) < 1 or len(request.form.get("latitude", "")) < 1 or len(request.form.get("longitude", "")) < 1:
+        return {"setupStatus" : "fail", "errorMessage" : "Location cannot be empty"}
+    
+    return {"saveSettingsStatus" : "success", "errorMessage" : ""}
+
 
 def get_user_settings_data(ws, user_id, obj):
 
