@@ -29,13 +29,13 @@ def check_register_input(data):
             return {"registerStatus" : "fail", "errorMessage" : "Password too common"}
 
     #check for duplicate email
-    cur.execute("SELECT * FROM users where email = %s", (data["email"],))
+    cur.execute("SELECT * FROM users WHERE email = %s", (data["email"],))
     same_username_user = cur.fetchone()
     if same_username_user:
         return {"registerStatus" : "fail", "errorMessage" : "Email already exists"}
 
     #check for duplicate name
-    cur.execute("SELECT * FROM users where username = %s", (data["username"],))
+    cur.execute("SELECT * FROM users WHERE username = %s", (data["username"],))
     same_username_user = cur.fetchone()
     if same_username_user:
         return {"registerStatus" : "fail", "errorMessage" : "Username already exists"}

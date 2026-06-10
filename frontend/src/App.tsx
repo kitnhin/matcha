@@ -11,6 +11,7 @@ import VerifyEmailComponent from "./components/VerifyEmailComponent";
 import ProfileSetupComponent from "./components/ProfileSetupComponent";
 import SettingsComponent from "./components/SettingsComponent";
 import ForgotPasswordComponent from "./components/ForgotPasswordComponent";
+import BrowseComponent from "./components/BrowseComponent";
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
@@ -68,6 +69,9 @@ function App() {
             />
 
             <Route path="/settings" element={<SettingsComponent />} />
+
+            <Route path="/browse" element={<BrowseComponent />} />
+    
           </>
         )}
       </Routes>

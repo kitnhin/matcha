@@ -6,6 +6,8 @@ from email_validator import validate_email, EmailNotValidError
 from utils.auth_utils import check_setup_input
 
 
+# need to use normal api fetch for this cuz ws cant send formdata
+
 settings_bp = Blueprint("settings", __name__)
 
 def check_settings_input(request): #can move this to settings later
@@ -95,7 +97,7 @@ def save_settings():
     # store user data
     cur.execute("UPDATE users set username = %s, first_name = %s, last_name = %s, "
                 "gender = %s, sexual_preference = %s, age = %s, biography = %s,"
-                "location = %s, latitude = %s, longitude = %s where id = %s", 
+                "location = %s, latitude = %s, longitude = %s WHERE id = %s", 
                 (request.form.get("username"), request.form.get("first_name"), request.form.get("last_name"),
                  request.form.get("gender"), request.form.get("sexual_preference"), request.form.get("age"), request.form.get("bio"),
                  request.form.get("location"), request.form.get("latitude"), request.form.get("longitude"), 
@@ -104,9 +106,9 @@ def save_settings():
     profile_pic = request.files.get("profile_pic")
     if profile_pic:
         pfp_base64 = base64.b64encode(profile_pic.read()).decode("utf-8")
-        cur.execute("UPDATE users set profile_pic = %s where id = %s", (pfp_base64, user_id))
+        cur.execute("UPDATE users set profile_pic = %s WHERE id = %s", (pfp_base64, user_id))
     else:
-        cur.execute("UPDATE users set profile_pic = NULL where id = %s", (user_id,))
+        cur.execute("UPDATE users set profile_pic = NULL WHERE id = %s", (user_id,))
 
     #store tags
     AVAILABLE_TAGS = ["vegan", "geek", "piercing", "gaming", "anime", "sports"]

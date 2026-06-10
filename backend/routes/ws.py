@@ -2,6 +2,7 @@ from flask import Blueprint, request, session
 from flask_sock import Sock
 import json
 from pages.home import get_user_home_data
+from pages.browse import get_browse_data
 from routes.settings import get_user_settings_data
 
 
@@ -12,7 +13,8 @@ sock = Sock()
 
 handlers = {
     "get_user_home_data": get_user_home_data,
-    "get_user_settings_data": get_user_settings_data
+    "get_user_settings_data": get_user_settings_data,
+    "get_browse_data": get_browse_data
 }
 
 #main websocket:
