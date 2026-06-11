@@ -17,23 +17,56 @@ def get_browse_data(ws, user_id, obj):
     user_tags = set(row[0] for row in cur.fetchall())
 
     #get potential matches
-    cur.execute("SELECT id FROM users "
+    cur.execute("SELECT id, username, age, profile_pic, location, latitude, longitude, fame FROM users "
                 "WHERE id != %s AND is_complete = true AND (gender = %s or gender = 'others') "
                 "AND (sexual_preference = %s or sexual_preference = 'others')", (user_id, user_pref, user_gender))
-    profile_ids = cur.fetchall()
+    profiles = cur.fetchall()
     profile_list = []
 
-    for p_id in profile_ids:
-        cur.execute("SELECT username, age, profile_pic, location, latitude, longitude, fame FROM users WHERE id = %s", (p_id,))
-        p_username, p_age, p_pfp, p_location, p_lat, p_long, p_fame = cur.fetchone()
+    #get all tags
+    id_list = [p[0] for p in profiles]
+    cur.execute("SELECT user_id, tag FROM tags WHERE user_id IN %s", (tuple(id_list),))
+    tag_rows = cur.fetchall()
+    p_tags_mp = {}
+    for p_id, tags in tag_rows:
+        if p_id not in p_tags_mp:
+            p_tags_mp[p_id] = set()
+        p_tags_mp[p_id].add(tags)
 
-        cur.execute("SELECT tag FROM tags WHERE user_id = %s", (p_id))
-        p_tags = set(row[0] for row in cur.fetchall())
+    #build profile list
+    profile_list = []
+    for p_id, p_username, p_age, p_pfp, p_location, p_lat, p_long, p_fame in profiles:
+        p_tags = p_tags_mp.get(p_id, set())
         common_tags_num = len(user_tags.intersection(p_tags))
+        distance = calc_distance(user_lat, user_long, p_lat, p_long)
+        score = 0.2*p_fame + common_tags_num - abs(user_age - p_age)*0.5 - distance*0.2
+        profile_list.append(Profile(p_id, p_username, p_age, p_location, common_tags_num, p_pfp, p_fame, score, distance))
 
-        score = 0.2*p_fame + common_tags_num - abs(user_age - p_age)*0.5 - calc_distance(user_lat, user_long, p_lat, p_long)*0.2
-        profile_list.append(Profile(p_id, p_username, p_age, p_location, common_tags_num, p_pfp, p_fame, score))
+    #process profiles based on specifications
+    sort = obj.get("sort", "Default")
+    order = obj.get("order", "desc")
+    offset = obj.get("offset", 0)
+    limit = obj.get("limit", 10)
 
-    profile_list.sort(key=lambda p: p.score, reverse=True)
-    top_profiles = [p.to_dict() for p in profile_list[:10]] #take the top profiles
-    ws.send(json.dumps({"type": "browseData", "profiles": top_profiles}))
+    #rip python dh switch case
+    if sort == "Default":
+        profile_list.sort(key=lambda p: p.score, reverse=(True if order == "desc" else False))
+    if sort == "Age":
+        profile_list.sort(key=lambda p: p.age, reverse=(True if order == "desc" else False))
+    if sort == "Fame":
+        profile_list.sort(key=lambda p: p.fame, reverse=(True if order == "desc" else False))
+    if sort == "Common Tags":
+        profile_list.sort(key=lambda p: p.common_tags, reverse=(True if order == "desc" else False))
+    if sort ==  "Location":
+        profile_list.sort(key=lambda p: p.distance, reverse=(True if order == "desc" else False))
+
+    #filter
+    profile_list = [p for p in profile_list if 
+                    (obj.get("min_age") <= p.age <= obj.get("max_age", 0)) and
+                    (obj.get("min_fame") <= p.fame <= obj.get("max_fame")) and
+                    (p.common_tags >= obj.get("min_common_tags")) and
+                    (p.distance <= obj.get("max_distance"))]
+    
+
+    send_profiles = [p.to_dict() for p in profile_list[offset:offset + limit]]
+    ws.send(json.dumps({"type": "browseData", "profiles": send_profiles}))

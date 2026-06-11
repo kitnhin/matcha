@@ -17,7 +17,7 @@ PREFERENCES = ["male", "female", "others"]
 
 last_id = 0
 
-for i in range(10):
+for i in range(50):
     username = fake.unique.user_name()
     email = fake.unique.email()
     first_name = fake.first_name()

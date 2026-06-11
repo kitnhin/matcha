@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import "../App.css";
 import WS from "../class/ws";
 import defaultPfp from "../assets/default_pfp.jpg";
@@ -60,31 +60,109 @@ const BrowseComponent: React.FC<BrowseComponentProps> = ({}) => {
 
   const [profiles, setProfiles] = useState<Profile[]>([]);
   const [showSort, setShowSort] = useState<boolean>(false);
-  const [sortBy, setSortBy] = useState<string>("default");
-  const [reverse, setReverse] = useState<boolean>(false);
+  const [sortBy, setSortBy] = useState<string>("Default");
+  const [order, setOrder] = useState<string>("desc");
+  const [offset, setOffset] = useState<number>(0);
+  const [hasMore, setHasMore] = useState<boolean>(true);
+  const [loading, setLoading] = useState<boolean>(false);
+
+  const [showFilter, setShowFilter] = useState<boolean>(false);
+  const [minAge, setMinAge] = useState<string>("18");
+  const [maxAge, setMaxAge] = useState<string>("100");
+  const [minFame, setMinFame] = useState<string>("0");
+  const [maxFame, setMaxFame] = useState<string>("10000");
+  const [maxDistance, setMaxDistance] = useState<string>("10000");
+  const [minCommonTags, setMinCommonTags] = useState<string>("0");
+
+  const limit = 6;
+  const scrollRef = useRef<HTMLDivElement>(null);
+
+  const hasLoaded = useRef<boolean>(false); //to counter annoying react stricmode double useEff
 
   useEffect(() => {
     WS.setup();
-    WS.send({ type: "get_browse_data" });
+
     WS.add_callback("browseData", (message) => {
-      setProfiles(message.profiles);
-      console.log(message);
+      setLoading(false);
+      setProfiles((prev) => [...prev, ...message.profiles]); //need to pass in ft if not it will use the array at the start instead of the current one
+      setOffset((prev) => prev + message.profiles.length);
+      if (message.profiles.length < limit) {
+        setHasMore(false);
+      }
     });
+
+    if(!hasLoaded.current) {
+        hasLoaded.current = true;
+        loadMore("Default", "desc", 0);
+    }
   }, []);
 
-  const sorted = [...profiles].sort((a, b) => {
-    //function shud be negative if a comes before b
-    if (sortBy === "Age") return a.age - b.age;
-    if (sortBy === "Fame") return a.fame - b.fame;
-    if (sortBy === "Common Tags") return a.common_tags - b.common_tags;
-    if (sortBy === "Location") return a.location.localeCompare(b.location); //similar to strcmp in c
-    return 0; // not sorting
-  });
+  function loadMore(sortBy: string, order: string, offset: number) {
+    if (loading || !hasMore) return;
 
-  if (reverse) sorted.reverse();
+    setLoading(true);
+    WS.send({
+      type: "get_browse_data",
+      offset: offset,
+      limit: limit,
+      sort: sortBy,
+      order: order,
+      min_age: Number(minAge),
+      max_age: Number(maxAge),
+      min_fame: Number(minFame),
+      max_fame: Number(maxFame),
+      min_common_tags: Number(minCommonTags),
+      max_distance: Number(maxDistance),
+    });
+  }
 
-  const col1 = sorted.filter((_, i) => i % 2 == 0);
-  const col2 = sorted.filter((_, i) => i % 2 == 1);
+  function handleSortChange(newSort: string) {
+    //when wanna sort, reset all profiles and start from first batch again
+    setSortBy(newSort);
+    setShowSort(false);
+    setProfiles([]);
+    setOffset(0);
+    setHasMore(true);
+    setLoading(false);
+
+    loadMore(newSort, order, 0);
+  }
+
+  function handleOrderChange() {
+    //same thing when wanna reverse, reset to first batch
+    const newOrder = order === "desc" ? "asc" : "desc";
+    setOrder(newOrder);
+    setShowSort(false);
+    setProfiles([]);
+    setOffset(0);
+    setHasMore(true);
+    setLoading(false);
+
+    loadMore(sortBy, newOrder, 0);
+  }
+
+  function handleScroll() {
+    const el = scrollRef.current;
+    if (!el) return;
+
+    //check the height of the div left
+    if (el.scrollHeight - el.scrollTop - el.clientHeight < 10) {
+      loadMore(sortBy, order, offset);
+    }
+  }
+
+  const col1 = profiles.filter((_, i) => i % 2 == 0);
+  const col2 = profiles.filter((_, i) => i % 2 == 1);
+
+  function handleFilterSubmit() {
+    setShowFilter(false);
+    setProfiles([]);
+    setOffset(0);
+    setHasMore(true);
+    setLoading(false);
+
+    loadMore(sortBy, order, 0);
+  }
 
   return (
     <div className="min-w-screen h-screen flex flex-col items-center overflow-hidden">
@@ -98,14 +176,14 @@ const BrowseComponent: React.FC<BrowseComponentProps> = ({}) => {
         <h1 className="text-2xl font-bold">Browse</h1>
 
         {/* Sorting stuff */}
-        <div className="absolute right-4">
+        <div className="absolute right-5 gap-4 flex">
           <button
             onClick={() => {
               setShowSort(true);
             }}
             className="right-4 text-xl"
           >
-            Sort by: {sortBy || "None"}
+            Sort: {sortBy || "None"}
           </button>
 
           {showSort && (
@@ -114,14 +192,13 @@ const BrowseComponent: React.FC<BrowseComponentProps> = ({}) => {
                 className="fixed inset-0 z-10"
                 onClick={() => setShowSort(false)}
               />
-              <div className="absolute flex flex-col right-0 mt-1 rounded border z-20">
+              <div className="absolute flex flex-col right-0 mt-10 rounded border z-20">
                 {["Default", "Age", "Fame", "Common Tags", "Location"].map(
                   (option) => (
                     <button
                       key={option}
                       onClick={() => {
-                        setSortBy(option);
-                        setShowSort(false);
+                        handleSortChange(option);
                       }}
                       className="text-left px-4 py-2 text-sm"
                     >
@@ -130,17 +207,115 @@ const BrowseComponent: React.FC<BrowseComponentProps> = ({}) => {
                   )
                 )}
                 <button
-                  onClick={() => setReverse(!reverse)}
-                  className="block w-full text-left px-4 py-2 text-sm"
+                  onClick={() => handleOrderChange()}
+                  className="text-left px-4 py-2 text-sm"
                 >
-                  Reverse
+                  Order: {order === "desc" ? "Descending" : "Ascending"}
                 </button>
+              </div>
+            </>
+          )}
+
+          {/* Filter stuff */}
+          <button
+            onClick={() => {
+              setShowFilter(true);
+            }}
+            className="right-4 text-xl"
+          >
+            Filter
+          </button>
+
+          {showFilter && (
+            <>
+              <div
+                className="fixed inset-0 z-10"
+                onClick={() => setShowFilter(false)}
+              />
+                <div className="absolute flex flex-col items-center right-0 mt-10 rounded border z-20 fex">
+                  <div className="flex gap-2 p-4">
+                    <label>Age: </label>
+                    <input
+                      type="text"
+                      value={minAge}
+                      onChange={(e) => {
+                        setMinAge(e.target.value);
+                      }}
+                      className="w-12 rounded border"
+                    />
+                    <p> to </p>
+                    <input
+                      type="text"
+                      value={maxAge}
+                      onChange={(e) => {
+                        setMaxAge(e.target.value);
+                      }}
+                      className="w-12 rounded border"
+                    />
+                  </div>
+                  <div className="flex gap-3 p-2">
+                    <label>Fame: </label>
+                    <input
+                      value={minFame}
+                      type="text"
+                      onChange={(e) => {
+                        setMinFame(e.target.value);
+                      }}
+                      className="w-12 rounded border"
+                    />
+                    <p> to </p>
+                    <input
+                      type="text"
+                      value={maxFame}
+                      onChange={(e) => {
+                        setMaxFame(e.target.value);
+                      }}
+                      className="w-12 rounded border"
+                    />
+                  </div>
+
+                  <div className="flex gap-3 p-2">
+                    <label>Min Common Tags: </label>
+                    <input
+                      type="text"
+                      value={minCommonTags}
+                      onChange={(e) => {
+                        setMinCommonTags(e.target.value);
+                      }}
+                      className="w-12 rounded border"
+                    />
+                  </div>
+
+                  <div className="flex gap-3 p-2">
+                    <label>Max distance: </label>
+                    <input
+                      type="text"
+                      value={maxDistance}
+                      onChange={(e) => {
+                        setMaxDistance(e.target.value);
+                      }}
+                      className="w-12 rounded border"
+                    />
+                  </div>
+
+                  <button
+                    onClick={handleFilterSubmit}
+                    className="rounded border text-left px-2 my-2 py-2 text-sm"
+                  >
+                    Submit
+                  </button>
               </div>
             </>
           )}
         </div>
       </div>
-      <div className="max-w-xl flex gap-3 overflow-y-auto flex-1 px-4 pb-4">
+
+      {/* Profiles */}
+      <div
+        className="max-w-xl flex gap-3 overflow-y-auto flex-1 px-4 pb-4"
+        ref={scrollRef}
+        onScroll={handleScroll}
+      >
         <div className="flex flex-col">
           {col1.map((profile) => (
             <ProfileCardComponent key={profile.username} profile={profile} />
@@ -152,6 +327,8 @@ const BrowseComponent: React.FC<BrowseComponentProps> = ({}) => {
           ))}
         </div>
       </div>
+
+      {loading && <p className="text-sm">Loading...</p>}
     </div>
   );
 };
