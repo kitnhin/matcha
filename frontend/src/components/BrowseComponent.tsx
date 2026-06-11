@@ -77,24 +77,33 @@ const BrowseComponent: React.FC<BrowseComponentProps> = ({}) => {
   const limit = 6;
   const scrollRef = useRef<HTMLDivElement>(null);
 
-  const hasLoaded = useRef<boolean>(false); //to counter annoying react stricmode double useEff
-
   useEffect(() => {
     WS.setup();
 
     WS.add_callback("browseData", (message) => {
       setLoading(false);
-      setProfiles((prev) => [...prev, ...message.profiles]); //need to pass in ft if not it will use the array at the start instead of the current one
+      setProfiles((prev) => {
+        const combined = [...prev, ...message.profiles];
+        const unique = []
+        const seen = new Set()
+
+        for (const profile of combined) {
+          if (!seen.has(profile.username)) {
+            seen.add(profile.username);
+            unique.push(profile);
+          }
+        }
+
+        return unique;
+      }); //need to pass in ft if not it will use the array at the start instead of the current one
       setOffset((prev) => prev + message.profiles.length);
       if (message.profiles.length < limit) {
         setHasMore(false);
       }
     });
 
-    if(!hasLoaded.current) {
-        hasLoaded.current = true;
-        loadMore("Default", "desc", 0);
-    }
+    loadMore(sortBy, order, offset);
+
   }, []);
 
   function loadMore(sortBy: string, order: string, offset: number) {
