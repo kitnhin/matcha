@@ -4,7 +4,7 @@ import json
 from pages.home import get_user_home_data
 from pages.browse import get_browse_data
 from pages.settings import get_user_settings_data
-from pages.visit_profile import get_profile_data
+from pages.visit_profile import get_profile_data, handle_like_profile
 from pages.settings import save_settings
 
 
@@ -18,7 +18,8 @@ handlers = {
     "get_user_settings_data": get_user_settings_data,
     "save_settings": save_settings,
     "get_browse_data": get_browse_data,
-    "get_profile_info": get_profile_data
+    "get_profile_info": get_profile_data,
+    "like_profile": handle_like_profile
 }
 
 #main websocket:

@@ -26,7 +26,7 @@ def get_browse_data(ws, user_id, obj):
     #get all tags
     id_list = [p[0] for p in profiles]
     if not id_list:
-        ws.send(json.dumps({"type": "browseData", "profiles": []}))
+        ws.send(json.dumps({"type": "browseData", "profiles": [], "errorMessage": "db empty i think"}))
         return
     cur.execute("SELECT user_id, tag FROM tags WHERE user_id IN %s", (tuple(id_list),))
     tag_rows = cur.fetchall()
@@ -73,3 +73,5 @@ def get_browse_data(ws, user_id, obj):
 
     send_profiles = [p.to_dict() for p in profile_list[offset:offset + limit]]
     ws.send(json.dumps({"type": "browseData", "profiles": send_profiles}))
+
+

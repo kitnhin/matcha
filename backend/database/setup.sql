@@ -32,3 +32,14 @@ CREATE TABLE IF NOT EXISTS pics (
     user_id INT,
     pic TEXT
 );
+
+CREATE TABLE IF NOT EXISTS likes (
+    row SERIAL PRIMARY KEY,
+    liker_id INT,
+    liked_id INT,
+    UNIQUE (liker_id, liked_id)
+)
+
+-- Separated tags and pics into own tables cuz imagine ltr need get all users wif certain tag,
+-- if use TEXT[] inside users table, gonna be quite diff to find all users wif that tag
+-- gonna be diff to edit the tags oso if tags r deleted or modified (extract, join etc)

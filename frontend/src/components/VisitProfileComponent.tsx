@@ -30,6 +30,7 @@ const VisitProfileComponent: React.FC<VisitProfileComponentProps> = ({}) => {
   const [queries, _] = useSearchParams();
   const profileId = queries.get("profile-id");
   const [likeStatus, setLikeStatus] = useState<boolean>(false);
+  const [likeErrorMessage, setLikeErrorMessage] = useState<string>("");
 
   useEffect(() => {
     WS.setup();
@@ -39,12 +40,23 @@ const VisitProfileComponent: React.FC<VisitProfileComponentProps> = ({}) => {
       setProfile(profileData);
     });
 
+    WS.add_callback("likeProfileStatus", (data) => {
+      if (data.status === "success") {
+        setLikeStatus(data.likeStatus);
+      } else {
+        setLikeErrorMessage(data.errorMessage);
+      }
+    });
+
     WS.send({ type: "get_profile_info", profile_id: profileId });
   }, []);
 
-  function handleLike(newLikeStatus : boolean) {
-    WS.send({ type: "like_profile", profile_id: profileId });
-    setLikeStatus(newLikeStatus);
+  function handleLike(newLikeStatus: boolean) {
+    WS.send({
+      type: "like_profile",
+      like_status: newLikeStatus,
+      profile_id: profileId,
+    });
   }
 
   return (
@@ -113,6 +125,9 @@ const VisitProfileComponent: React.FC<VisitProfileComponentProps> = ({}) => {
                     </div>
                   </>
                 )}
+                {likeErrorMessage && (
+                  <p className="text-red-500 text-sm">{likeErrorMessage}</p>
+                )}
 
                 <button
                   onClick={() => handleLike(!likeStatus)}
@@ -126,10 +141,7 @@ const VisitProfileComponent: React.FC<VisitProfileComponentProps> = ({}) => {
             </>
           )}
         </div>
-        <button
-          onClick={() => navigate("/browse")}
-          className="text-xl"
-        >
+        <button onClick={() => navigate("/browse")} className="text-xl">
           ← Back
         </button>
       </div>

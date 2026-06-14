@@ -45,28 +45,19 @@ def get_profile_data(ws, user_id, obj):
     }))
 
 
+def handle_like_profile(ws, user_id, obj):
+
+    #check if user has pfp
+    cur.execute("SELECT profile_pic FROM users WHERE id = %s", (user_id,))
+    pfp = cur.fetchone()[0]
+    if not pfp:
+        ws.send(json.dumps({"type": "likeProfileStatus", "status": "fail", "errorMessage": "Pfp required to like others", "likeStatus": not obj.get("like_status")}))
+        return
     
+    if obj.get("like_status") == True:
+        cur.execute("INSERT INTO likes (liker_id, liked_id) VALUES (%s, %s) ON CONFLICT DO NOTHING", (user_id, obj.get("profile_id")))
+    else:
+        cur.execute("DELETE FROM likes WHERE liker_id =  %s AND liked_id = %s", (user_id, obj.get("profile_id")))
 
-
-    # id SERIAL PRIMARY KEY,
-    # username TEXT UNIQUE NOT NULL,
-    # email TEXT UNIQUE NOT NULL,
-    # password TEXT NOT NULL,
-    # first_name TEXT,
-    # last_name TEXT,
-    # gender TEXT,
-    # sexual_preference TEXT,
-    # biography TEXT,
-    # fame INT DEFAULT 0,
-    # latitude FLOAT,
-    # longitude FLOAT,
-    # location TEXT,
-    # profile_pic TEXT,
-    # age INT,
-    # last_seen TIMESTAMP,
-    # is_online BOOLEAN DEFAULT FALSE,
-    # is_verified BOOLEAN DEFAULT FALSE,
-    # is_complete BOOLEAN DEFAULT FALSE,
-    # verification_token TEXT
-
-    
+    conn.commit()
+    ws.send(json.dumps({"type": "likeProfileStatus", "status": "success", "errorMessage": "", "likeStatus" : obj.get("like_status")}))

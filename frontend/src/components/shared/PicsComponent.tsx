@@ -69,6 +69,10 @@ const PicsComponent: React.FC<PicsComponentProps> = ({
     const newExtraPics = [...extraPics];
     newExtraPics[i] = null;
     setExtraPics(newExtraPics);
+
+    if(extraPicsInputRefs[i].current) {
+      extraPicsInputRefs[i].current.value = "";
+    }
   }
 
   return (
