@@ -41,11 +41,9 @@ for i in range(50):
     )
 
     last_id = cur.fetchone()[0]
-
-    for _ in range(random.randint(1, 3)):
-        user_id = random.randint(1, last_id)
-        tag_index = random.randint(0, len(AVAILABLE_TAGS)-1)
-        cur.execute("INSERT INTO tags (user_id, tag) VALUES (%s, %s)", (user_id, AVAILABLE_TAGS[tag_index]))
+    chosen_tags = random.sample(AVAILABLE_TAGS, random.randint(0, len(AVAILABLE_TAGS)))
+    for tag in chosen_tags:
+        cur.execute("INSERT INTO tags (user_id, tag) VALUES (%s, %s)", (last_id, tag))
     
 conn.commit()
 print("DONE SEEDING!!")

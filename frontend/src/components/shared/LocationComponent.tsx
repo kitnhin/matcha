@@ -31,6 +31,13 @@ const LocationComponent: React.FC<LocationComponentProps> = ({
       clearTimeout(locationTimerRef.current);
     }
 
+    if (inputPlace.trim() === "") {
+        setSelectedLocation(null);
+        setLocationRes([]);
+        setShowLocationRes(false);
+        return;
+    }
+    
     if (inputPlace.length < 3) {
       setLocationRes([]);
       setShowLocationRes(false);

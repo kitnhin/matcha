@@ -8,7 +8,6 @@ import secrets
 from extensions import mail
 from routes.auth import auth_bp
 from routes.ws import ws_bp, sock
-from routes.settings import settings_bp
 
 app = Flask(__name__)
 app.secret_key = os.getenv('SECRET_KEY')
@@ -28,8 +27,6 @@ sock.init_app(app)
 #routes
 app.register_blueprint(auth_bp) #/auth/
 app.register_blueprint(ws_bp) #/ws
-app.register_blueprint(settings_bp) #/settings
-
 
 if __name__ == "__main__":
     app.run(debug=True, port=5050)

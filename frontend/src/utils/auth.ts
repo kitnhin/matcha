@@ -51,3 +51,15 @@ export function handleLogout(setIsLoggedIn: (value: boolean) => void) {
       }
     });
 }
+
+export async function picToBase64(file : File): Promise<string> {
+    const buffer = await file.arrayBuffer(); // get the binary data of the file (useless one cannot read or modify)
+    const bytes = new Uint8Array(buffer); // convert this to Unicode (smth like ascii but more numbers) [255, 216, 255, 224, 0, 16, ...]
+    
+    let binaryString = '';
+    for (const byte of bytes)
+        binaryString += String.fromCharCode(byte); //convert this unicode to actual characters "ÿØÿà..." (mostly weird characters)
+
+    const base64 = btoa(binaryString); // convert to base64 string
+    return base64;
+}

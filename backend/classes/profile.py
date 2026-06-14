@@ -1,6 +1,8 @@
+import os
+
 class Profile:
-    def __init__(self, id, username, age, location, common_tags, pfp, fame, score, distance):
-        self.id = id
+    def __init__(self, user_id, username, age, location, common_tags, pfp, fame, score, distance):
+        self.user_id = user_id
         self.username = username
         self.age = age
         self.location = location
@@ -12,11 +14,11 @@ class Profile:
     
     def to_dict(self):
         return {
-            "profile_link": f"link/{id}",
+            "userId": self.user_id,
             "username": self.username,
             "age": self.age,
             "location": self.location,
-            "common_tags": self.common_tags,
-            "profile_pic": self.pfp,
+            "commonTags": self.common_tags,
+            "profilePic": self.pfp,
             "fame": self.fame,
         }

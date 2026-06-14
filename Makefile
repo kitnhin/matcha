@@ -19,4 +19,11 @@ addv:
 	'$$(python -c "import bcrypt; print(bcrypt.hashpw(b\"123\", bcrypt.gensalt()).decode())")', \
 	TRUE);"
 
+addv2:
+	psql -U matcha_user -d matcha -c \
+	"INSERT INTO users (email, username, first_name, last_name, password, is_verified) \
+	VALUES ('ethanlimck2@gmail.com', 'kit2', 'L', 'K', \
+	'$$(python -c "import bcrypt; print(bcrypt.hashpw(b\"123\", bcrypt.gensalt()).decode())")', \
+	TRUE);"
+
 all: dropdb initdb

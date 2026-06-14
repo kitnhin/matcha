@@ -6,6 +6,7 @@ import PicsComponent from "./shared/PicsComponent";
 import WS from "../class/ws";
 import BasicInfoComponent from "./shared/BasicInfoComponent";
 import NameInputComponent from "./shared/NameInputComponent";
+import { picToBase64 } from "../utils/auth.ts";
 
 interface SettingsProps {}
 
@@ -32,62 +33,42 @@ const SettingsComponent: React.FC<SettingsProps> = ({}) => {
 
   const navigate = useNavigate();
 
-  function handleSubmit(event: React.SubmitEvent<HTMLFormElement>) {
+  async function handleSubmit(event: React.SubmitEvent<HTMLFormElement>) {
     event.preventDefault();
 
-    const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
-
-    // create form data to send to backend
-    let formData = new FormData();
-    formData.append("email", email);
-    formData.append("username", username);
-    formData.append("first_name", firstName);
-    formData.append("last_name", lastName);
-
-    formData.append("gender", gender);
-    formData.append("sexual_preference", sexualPreference);
-    formData.append("age", age);
-    formData.append("bio", bio);
-    for (let i = 0; i < selectedTags.length; i++) {
-      formData.append("tags", selectedTags[i]);
-    }
-    formData.append(
-      "location",
-      selectedLocation ? selectedLocation.place_name : ""
-    );
-    formData.append(
-      "longitude",
-      selectedLocation ? selectedLocation.longitude.toString() : "0"
-    );
-    formData.append(
-      "latitude",
-      selectedLocation ? selectedLocation.latitude.toString() : "0"
-    );
-    if (profilePic) {
-      formData.append("profile_pic", profilePic);
-    }
-    for (let i = 0; i < extraPics.length; i++) {
-      if (extraPics[i]) {
-        formData.append("extra_pics", extraPics[i] as File);
-      }
+    // convert profile pic to base64 if it's a File
+    let pfpBase64 = profilePic;
+    if (profilePic instanceof File) {
+        pfpBase64 = await picToBase64(profilePic);
     }
 
-    fetch(`${BACKEND_URL}/settings/save`, {
-      method: "POST",
-      credentials: "include",
-      body: formData,
-    })
-      .then((response: Response) => response.json())
-      .then((data: { saveSettingsStatus: string; errorMessage: string }) => {
-        console.log("WEEE", data);
-        if (data.saveSettingsStatus === "success") {
-          setSuccessMessage("Successfully updated profile");
-          setErrorMessage("");
-        } else {
-          setErrorMessage(data.errorMessage);
-          setSuccessMessage("");
+    // convert extra pics to base64
+    const picsBase64 = [];
+    for (const pic of extraPics) {
+        if (pic instanceof File) {
+            picsBase64.push(await picToBase64(pic));
+        } else if (pic) {
+            picsBase64.push(pic);
         }
-      });
+    }
+
+    WS.send({
+        type: "save_settings",
+        email,
+        username,
+        first_name: firstName,
+        last_name: lastName,
+        gender,
+        sexual_preference: sexualPreference,
+        age,
+        bio,
+        tags: selectedTags,
+        location: selectedLocation ? selectedLocation.place_name : "",
+        latitude: selectedLocation ? selectedLocation.latitude : 0,
+        longitude: selectedLocation ? selectedLocation.longitude : 0,
+        profile_pic: pfpBase64 || null,
+        extra_pics: picsBase64,
+    });
   }
 
   useEffect(() => {
@@ -113,6 +94,17 @@ const SettingsComponent: React.FC<SettingsProps> = ({}) => {
         latitude: message.latitude,
         longitude: message.longitude,
       });
+    });
+
+    WS.add_callback("saveSettingsStatus", (message) => {
+        if(message.status === "success") {
+            setSuccessMessage("Settings saved successfully!");
+            setErrorMessage("");
+        }
+        else {
+            setErrorMessage(message.errorMessage);
+            setSuccessMessage("");
+        }
     });
 
     WS.send({ type: "get_user_settings_data" });

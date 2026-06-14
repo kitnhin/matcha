@@ -5,12 +5,12 @@ import defaultPfp from "../assets/default_pfp.jpg";
 import { useNavigate } from "react-router-dom";
 
 interface Profile {
-  profile_link: string;
+  userId: string;
   username: string;
   age: number;
   location: string;
-  common_tags: number;
-  profile_pic: string;
+  commonTags: number;
+  profilePic: string;
   fame: number;
 }
 
@@ -25,13 +25,13 @@ const ProfileCardComponent: React.FC<ProfileCardComponentProps> = ({
 
   return (
     <div
-      onClick={() => navigate(`/profile/${profile.profile_link}`)}
+      onClick={() => navigate(`/profile?profile-id=${profile.userId}`)}
       className="mb-2 max-w-xs p-4"
     >
       <img
         src={
-          profile.profile_pic
-            ? `data:image/jpeg;base64,${profile.profile_pic}`
+          profile.profilePic
+            ? `data:image/jpeg;base64,${profile.profilePic}`
             : defaultPfp
         }
         alt={profile.username}
@@ -46,7 +46,7 @@ const ProfileCardComponent: React.FC<ProfileCardComponentProps> = ({
         </div>
         <p className="text-sm text-gray-400 mt-1">{profile.location}</p>
         <p className="text-xs text-gray-500 mt-1">
-          {profile.common_tags} common tags
+          {profile.commonTags} common tags
         </p>
       </div>
     </div>

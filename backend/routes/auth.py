@@ -48,12 +48,6 @@ def process_register():
     if check_register_res["registerStatus"] == "fail":
         return check_register_res
 
-    #check for duplicate name
-    cur.execute("SELECT * FROM users WHERE username = %s", (data["username"],))
-    same_username_user = cur.fetchone()
-    if same_username_user:
-        return {"registerStatus" : "fail", "errorMessage" : "Username already exists"}
-
     #store in db
     hashed_pw = bcrypt.hashpw(data["password"].encode('utf-8'), bcrypt.gensalt()) #hash pw first
     cur.execute("INSERT INTO users (email, username, first_name, last_name, password) VALUES (%s, %s, %s, %s, %s)",

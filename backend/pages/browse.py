@@ -25,6 +25,9 @@ def get_browse_data(ws, user_id, obj):
 
     #get all tags
     id_list = [p[0] for p in profiles]
+    if not id_list:
+        ws.send(json.dumps({"type": "browseData", "profiles": []}))
+        return
     cur.execute("SELECT user_id, tag FROM tags WHERE user_id IN %s", (tuple(id_list),))
     tag_rows = cur.fetchall()
     p_tags_mp = {}
@@ -39,7 +42,7 @@ def get_browse_data(ws, user_id, obj):
         p_tags = p_tags_mp.get(p_id, set())
         common_tags_num = len(user_tags.intersection(p_tags))
         distance = calc_distance(user_lat, user_long, p_lat, p_long)
-        score = 0.2*p_fame + common_tags_num - abs(user_age - p_age)*0.5 - distance*0.2
+        score = 0.2*p_fame + common_tags_num - abs(user_age - p_age)*0.5 - distance*0.2 #algo designed for "smart matches"
         profile_list.append(Profile(p_id, p_username, p_age, p_location, common_tags_num, p_pfp, p_fame, score, distance))
 
     #process profiles based on specifications
