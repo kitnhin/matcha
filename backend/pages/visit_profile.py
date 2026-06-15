@@ -22,6 +22,10 @@ def get_profile_data(ws, user_id, obj):
     cur.execute("SELECT tag FROM tags WHERE user_id = %s", (profile_id,))
     tags = [row[0] for row in cur.fetchall()]
 
+    #see if profile is liked
+    cur.execute("SELECT * FROM likes WHERE liker_id = %s AND liked_id = %s", (user_id, profile_id))
+    is_liked = cur.fetchone() is not None
+
     ws.send(json.dumps({
         "type": "getProfile",
         "status": "success",
@@ -41,7 +45,8 @@ def get_profile_data(ws, user_id, obj):
         "extraPics": extra_pics,
         "tags": tags,
 
-        "isUser": (profile_id == user_id)
+        "isUser": (profile_id == user_id),
+        "isLiked": is_liked
     }))
 
 

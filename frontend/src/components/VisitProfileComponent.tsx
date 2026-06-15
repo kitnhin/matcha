@@ -38,6 +38,9 @@ const VisitProfileComponent: React.FC<VisitProfileComponentProps> = ({}) => {
     WS.add_callback("getProfile", (data) => {
       const { type, status, ...profileData } = data;
       setProfile(profileData);
+      if(data.isLiked) {
+        setLikeStatus(true);
+      }
     });
 
     WS.add_callback("likeProfileStatus", (data) => {
