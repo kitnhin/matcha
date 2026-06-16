@@ -6,6 +6,9 @@ def get_profile_data(ws, user_id, obj):
 
     profile_id = obj.get("profile_id")
 
+    if profile_id == -1:
+        profile_id = user_id
+
     cur.execute("SELECT id, username, first_name, last_name, gender, sexual_preference, biography, fame, location, profile_pic, age FROM users WHERE id = %s", (profile_id,))
 
     profile_data = cur.fetchone()
@@ -52,17 +55,24 @@ def get_profile_data(ws, user_id, obj):
 
 def handle_like_profile(ws, user_id, obj):
 
+    profile_id = obj.get("profile_id")
+
+    #check if its the user himself
+    if profile_id == -1 or profile_id == user_id: #profile_id -1 means the user himself
+        ws.send(json.dumps({"type": "likeProfileStatus", "status": "fail", "errorMessage": "You cant like urself :D", "likeStatus": not obj.get("like_status")}))
+        return
+    
     #check if user has pfp
     cur.execute("SELECT profile_pic FROM users WHERE id = %s", (user_id,))
     pfp = cur.fetchone()[0]
     if not pfp:
         ws.send(json.dumps({"type": "likeProfileStatus", "status": "fail", "errorMessage": "Pfp required to like others", "likeStatus": not obj.get("like_status")}))
         return
-    
+
     if obj.get("like_status") == True:
-        cur.execute("INSERT INTO likes (liker_id, liked_id) VALUES (%s, %s) ON CONFLICT DO NOTHING", (user_id, obj.get("profile_id")))
+        cur.execute("INSERT INTO likes (liker_id, liked_id) VALUES (%s, %s) ON CONFLICT DO NOTHING", (user_id, profile_id))
     else:
-        cur.execute("DELETE FROM likes WHERE liker_id =  %s AND liked_id = %s", (user_id, obj.get("profile_id")))
+        cur.execute("DELETE FROM likes WHERE liker_id =  %s AND liked_id = %s", (user_id, profile_id))
 
     conn.commit()
     ws.send(json.dumps({"type": "likeProfileStatus", "status": "success", "errorMessage": "", "likeStatus" : obj.get("like_status")}))

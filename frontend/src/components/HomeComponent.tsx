@@ -4,6 +4,7 @@ import "../App.css";
 import { handleLogout } from "../utils/auth";
 import WS from "../class/ws";
 import defaultPfp from "../assets/default_pfp.jpg";
+import VisitProfileComponent from "./VisitProfileComponent";
 
 interface HomeComponentProps {
   setIsLoggedIn: React.Dispatch<React.SetStateAction<boolean>>;
@@ -15,6 +16,8 @@ const HomeComponent: React.FC<HomeComponentProps> = ({ setIsLoggedIn }) => {
   const [username, setUsername] = useState<string>("");
   const [fame, setFame] = useState<string>("");
   const [profilePic, setProfilePic] = useState<string>("");
+
+  const [showProfile, setShowProfile] = useState<boolean>(false);
 
   useEffect(() => {
     WS.setup();
@@ -30,7 +33,7 @@ const HomeComponent: React.FC<HomeComponentProps> = ({ setIsLoggedIn }) => {
   return (
     <div className="min-h-screen">
       <div className="flex items-center justify-between px-6 py-4">
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-4" onClick={() => setShowProfile(true)}>
           <img
             src={
               profilePic ? `data:image/jpeg;base64,${profilePic}` : defaultPfp
@@ -77,6 +80,10 @@ const HomeComponent: React.FC<HomeComponentProps> = ({ setIsLoggedIn }) => {
         </button>
         
       </div>
+
+      {showProfile && (
+        <VisitProfileComponent setShowProfile={setShowProfile} profileId={-1} />
+      )}
     </div>
   );
 };

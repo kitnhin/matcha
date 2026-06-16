@@ -39,7 +39,7 @@ const ResearchComponent: React.FC<ResearchComponentProps> = ({}) => {
   const [Tags, setTags] = useState<string[]>([]);
 
   const [showProfile, setShowProfile] = useState<boolean>(false);
-  const [showProfileId, setShowProfileId] = useState<number>(-1);
+  const [showProfileId, setShowProfileId] = useState<number>(-2);
 
   const [selectedLocation, setSelectedLocation] = useState<Location | null>(
     null

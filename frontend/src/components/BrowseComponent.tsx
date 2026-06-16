@@ -29,7 +29,7 @@ const BrowseComponent: React.FC<BrowseComponentProps> = ({}) => {
   const [minCommonTags, setMinCommonTags] = useState<string>("0");
 
   const [showProfile, setShowProfile] = useState<boolean>(false);
-  const [showProfileId, setShowProfileId] = useState<number>(-1);
+  const [showProfileId, setShowProfileId] = useState<number>(-2);
 
   const limit = 6;
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -80,8 +80,6 @@ const BrowseComponent: React.FC<BrowseComponentProps> = ({}) => {
       max_distance: Number(maxDistance),
     });
   }
-
-  function loadMore(sortBy: string, order: string, offset: number) {}
 
   function handleSortChange(newSort: string) {
     //when wanna sort, reset all profiles and start from first batch again
