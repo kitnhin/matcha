@@ -32,10 +32,10 @@ const LocationComponent: React.FC<LocationComponentProps> = ({
     }
 
     if (inputPlace.trim() === "") {
-        setSelectedLocation(null);
-        setLocationRes([]);
-        setShowLocationRes(false);
-        return;
+      setSelectedLocation(null);
+      setLocationRes([]);
+      setShowLocationRes(false);
+      return;
     }
 
     if (inputPlace.length < 3) {
@@ -86,7 +86,11 @@ const LocationComponent: React.FC<LocationComponentProps> = ({
         )
           .then((response: Response) => response.json())
           .then((data: any) => {
-            const place_name = `${data.address.city_district}, ${data.address.city}, ${data.address.state} , ${data.address.country}`;
+            const place_name = `${
+              data.address.city_district ? `${data.address.city_district},` : ""
+            }${data.address.city ? ` ${data.address.city},` : ""}${
+              data.address.state ? ` ${data.address.state},` : ""
+            }${data.address.country ? ` ${data.address.country}` : ""}`;
             setSelectedLocation({
               place_name: place_name,
               latitude: latitude,
@@ -102,15 +106,13 @@ const LocationComponent: React.FC<LocationComponentProps> = ({
 
   useEffect(() => {
     if (selectedLocation) {
-        setLocationQuery(selectedLocation.place_name);
+      setLocationQuery(selectedLocation.place_name);
     }
-  }, [selectedLocation])
+  }, [selectedLocation]);
 
   return (
     <div className="flex flex-col gap-2">
-      <label className="text-xl font-medium text-gray-700">
-        Location
-      </label>
+      <label className="text-xl font-medium text-gray-700">Location</label>
 
       <div className="relative">
         <input
@@ -119,7 +121,11 @@ const LocationComponent: React.FC<LocationComponentProps> = ({
           onChange={(e) => {
             handleLocationInputChange(e);
           }}
-          value={locationQuery.length > 35 ? locationQuery.substring(0, 35) + "..." : locationQuery}
+          value={
+            locationQuery.length > 35
+              ? locationQuery.substring(0, 35) + "..."
+              : locationQuery
+          }
         />
         {showLocationRes && (
           <ul className="absolute left-0 right-0 top-full z-10 max-h-30 overflow-y-auto rounded-md border bg-white shadow-md">
@@ -151,7 +157,7 @@ const LocationComponent: React.FC<LocationComponentProps> = ({
       <p className="text-sm text-gray-500">
         Selected location:{" "}
         {selectedLocation
-          ? `${selectedLocation.place_name} (${selectedLocation.latitude}, ${selectedLocation.longitude})`
+          ? `${selectedLocation.place_name} (${selectedLocation.latitude.toFixed(5)}, ${selectedLocation.longitude.toFixed(5)})`
           : "None"}
       </p>
     </div>

@@ -16,7 +16,7 @@ def get_profile_data(ws, user_id, obj):
     if not profile_data:
         ws.send(json.dumps({"type": "getProfile", "status": "fail", "errorMessage": "Profile not found"}))
         return
-    
+
     #get extra pics
     cur.execute("SELECT pic FROM pics WHERE user_id = %s", (profile_id,))
     extra_pics = [row[0] for row in cur.fetchall()]
@@ -28,6 +28,24 @@ def get_profile_data(ws, user_id, obj):
     #see if profile is liked
     cur.execute("SELECT * FROM likes WHERE liker_id = %s AND liked_id = %s", (user_id, profile_id))
     is_liked = cur.fetchone() is not None
+
+    #update views db
+    if profile_id != user_id: #dont add view if its the user himself
+        cur.execute("INSERT INTO views (viewer_id, viewed_id) VALUES (%s, %s) ON CONFLICT DO NOTHING", (user_id, profile_id))
+
+    #if its the user himself, can send viewed and likes
+    if profile_id == user_id:
+        cur.execute("SELECT liker_id FROM likes WHERE liked_id = %s", (user_id,))
+        liked_by = [row[0] for row in cur.fetchall()]
+        cur.execute("SELECT viewer_id FROM views WHERE viewed_id = %s", (user_id,))
+        viewed_by = [row[0] for row in cur.fetchall()]
+        
+        if liked_by:
+            cur.execute("SELECT username FROM users WHERE id IN %s", (tuple(liked_by),))
+            liked_by = [row[0] for row in cur.fetchall()]
+        if viewed_by:
+            cur.execute("SELECT username FROM users WHERE id IN %s", (tuple(viewed_by),))
+            viewed_by = [row[0] for row in cur.fetchall()]
 
     ws.send(json.dumps({
         "type": "getProfile",
@@ -49,7 +67,10 @@ def get_profile_data(ws, user_id, obj):
         "tags": tags,
 
         "isUser": (profile_id == user_id),
-        "isLiked": is_liked
+        "isLiked": is_liked,
+
+        "likedBy": liked_by if profile_id == user_id else None,
+        "viewedBy": viewed_by if profile_id == user_id else None
     }))
 
 

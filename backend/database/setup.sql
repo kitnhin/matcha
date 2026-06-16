@@ -38,7 +38,14 @@ CREATE TABLE IF NOT EXISTS likes (
     liker_id INT,
     liked_id INT,
     UNIQUE (liker_id, liked_id)
-)
+);
+
+CREATE TABLE IF NOT EXISTS views (
+    row SERIAL PRIMARY KEY,
+    viewer_id INT,
+    viewed_id INT,
+    UNIQUE (viewer_id, viewed_id)
+);
 
 -- Separated tags and pics into own tables cuz imagine ltr need get all users wif certain tag,
 -- if use TEXT[] inside users table, gonna be quite diff to find all users wif that tag

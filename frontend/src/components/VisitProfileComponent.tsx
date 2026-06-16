@@ -4,8 +4,8 @@ import WS from "../class/ws";
 import defaultPfp from "../assets/default_pfp.jpg";
 
 interface VisitProfileComponentProps {
-    profileId: number;
-    setShowProfile: React.Dispatch<React.SetStateAction<boolean>>;
+  profileId: number;
+  setShowProfile: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 interface ProfileData {
@@ -23,10 +23,14 @@ interface ProfileData {
   extraPics: string[];
   tags: string[];
   isUser: boolean;
+  likedBy: string[];
+  viewedBy: string[];
 }
 
-const VisitProfileComponent: React.FC<VisitProfileComponentProps> = ({profileId, setShowProfile}) => {
-
+const VisitProfileComponent: React.FC<VisitProfileComponentProps> = ({
+  profileId,
+  setShowProfile,
+}) => {
   const [profile, setProfile] = useState<ProfileData | null>(null);
   const [likeStatus, setLikeStatus] = useState<boolean>(false);
   const [likeErrorMessage, setLikeErrorMessage] = useState<string>("");
@@ -37,7 +41,7 @@ const VisitProfileComponent: React.FC<VisitProfileComponentProps> = ({profileId,
     WS.add_callback("getProfile", (data) => {
       const { type, status, ...profileData } = data;
       setProfile(profileData);
-      if(data.isLiked) {
+      if (data.isLiked) {
         setLikeStatus(true);
       }
     });
@@ -64,7 +68,7 @@ const VisitProfileComponent: React.FC<VisitProfileComponentProps> = ({profileId,
   return (
     <>
       <div className="fixed inset-0 flex flex-col items-center justify-center  min-h-screen bg-gray-100">
-        <div className="w-full max-w-sm rounded-xl border border-gray-200 bg-white p-6">
+        <div className="w-full max-w-sm rounded-xl border border-gray-200 bg-white p-6 break-words">
           {/* <h1 className="mb-6 text-center text-2xl font-bold text-gray-800">
             {profile ? `${profile.username}'s profile` : "Loading..."}
           </h1> */}
@@ -127,6 +131,41 @@ const VisitProfileComponent: React.FC<VisitProfileComponentProps> = ({profileId,
                     </div>
                   </>
                 )}
+
+                {/* Liked by */}
+                {profile.likedBy && (
+                  <div className="flex">
+                    <p>Liked by: </p>
+                    {profile.likedBy && profile.likedBy.length > 0 ? (
+                      profile.likedBy.map((username, i) => (
+                        <p key={i} className="ml-1">
+                          {username}
+                          {i !== profile.likedBy.length - 1 && ","}
+                        </p>
+                      ))
+                    ) : (
+                      <p className="ml-1">-</p>
+                    )}
+                  </div>
+                )}
+
+                {/* Viewed by */}
+                {profile.viewedBy && (
+                  <div className="flex">
+                    <p>Viewed by: </p>
+                    {profile.viewedBy && profile.viewedBy.length > 0 ? (
+                      profile.viewedBy.map((username, i) => (
+                        <p key={i} className="ml-1">
+                          {username}
+                          {i !== profile.viewedBy.length - 1 && ","}
+                        </p>
+                      ))
+                    ) : (
+                      <p className="ml-1">-</p>
+                    )}
+                  </div>
+                )}
+
                 {likeErrorMessage && (
                   <p className="text-red-500 text-sm">{likeErrorMessage}</p>
                 )}
