@@ -1,10 +1,12 @@
 import { useEffect, useState } from "react";
 import "../App.css";
-import { useNavigate, useSearchParams } from "react-router-dom";
 import WS from "../class/ws";
 import defaultPfp from "../assets/default_pfp.jpg";
 
-interface VisitProfileComponentProps {}
+interface VisitProfileComponentProps {
+    profileId: number;
+    setShowProfile: React.Dispatch<React.SetStateAction<boolean>>;
+}
 
 interface ProfileData {
   profileId: string;
@@ -23,12 +25,9 @@ interface ProfileData {
   isUser: boolean;
 }
 
-const VisitProfileComponent: React.FC<VisitProfileComponentProps> = ({}) => {
-  const navigate = useNavigate();
+const VisitProfileComponent: React.FC<VisitProfileComponentProps> = ({profileId, setShowProfile}) => {
 
   const [profile, setProfile] = useState<ProfileData | null>(null);
-  const [queries, _] = useSearchParams();
-  const profileId = queries.get("profile-id");
   const [likeStatus, setLikeStatus] = useState<boolean>(false);
   const [likeErrorMessage, setLikeErrorMessage] = useState<string>("");
 
@@ -64,7 +63,7 @@ const VisitProfileComponent: React.FC<VisitProfileComponentProps> = ({}) => {
 
   return (
     <>
-      <div className="flex flex-col items-center justify-center  min-h-screen bg-gray-100">
+      <div className="fixed inset-0 flex flex-col items-center justify-center  min-h-screen bg-gray-100">
         <div className="w-full max-w-sm rounded-xl border border-gray-200 bg-white p-6">
           {/* <h1 className="mb-6 text-center text-2xl font-bold text-gray-800">
             {profile ? `${profile.username}'s profile` : "Loading..."}
@@ -144,7 +143,7 @@ const VisitProfileComponent: React.FC<VisitProfileComponentProps> = ({}) => {
             </>
           )}
         </div>
-        <button onClick={() => navigate("/browse")} className="text-xl">
+        <button onClick={() => setShowProfile(false)} className="text-xl">
           ← Back
         </button>
       </div>

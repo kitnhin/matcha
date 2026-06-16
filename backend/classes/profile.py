@@ -1,7 +1,7 @@
 import os
 
 class Profile:
-    def __init__(self, user_id, username, age, location, common_tags, pfp, fame, score, distance):
+    def __init__(self, user_id, username, age, location, common_tags, pfp, fame, score, distance, tags):
         self.user_id = user_id
         self.username = username
         self.age = age
@@ -11,6 +11,7 @@ class Profile:
         self.fame = fame
         self.score = score
         self.distance = distance
+        self.tags = tags
     
     def to_dict(self):
         return {

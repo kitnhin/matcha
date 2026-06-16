@@ -5,55 +5,7 @@ import defaultPfp from "../assets/default_pfp.jpg";
 import { useNavigate } from "react-router-dom";
 import { ProfileCardComponent } from "./shared/ProfileCardComponent";
 import type { Profile } from "./shared/ProfileCardComponent";
-
-// interface Profile {
-//   userId: string;
-//   username: string;
-//   age: number;
-//   location: string;
-//   commonTags: number;
-//   profilePic: string;
-//   fame: number;
-// }
-
-// interface ProfileCardComponentProps {
-//   profile: Profile;
-// }
-
-// const ProfileCardComponent: React.FC<ProfileCardComponentProps> = ({
-//   profile,
-// }) => {
-//   const navigate = useNavigate();
-
-//   return (
-//     <div
-//       onClick={() => navigate(`/profile?profile-id=${profile.userId}`)}
-//       className="mb-2 max-w-xs p-4"
-//     >
-//       <img
-//         src={
-//           profile.profilePic
-//             ? `data:image/jpeg;base64,${profile.profilePic}`
-//             : defaultPfp
-//         }
-//         alt={profile.username}
-//         className="w-full aspect-square object-cover rounded-3xl"
-//       />
-//       <div className="p-3">
-//         <div className="flex items-center justify-between">
-//           <span className="font-semibold">
-//             {profile.username}, {profile.age}
-//           </span>
-//           <span className="text-orange-500 text-sm">🔥 {profile.fame}</span>
-//         </div>
-//         <p className="text-sm text-gray-400 mt-1">{profile.location}</p>
-//         <p className="text-xs text-gray-500 mt-1">
-//           {profile.commonTags} common tags
-//         </p>
-//       </div>
-//     </div>
-//   );
-// };
+import VisitProfileComponent from "./VisitProfileComponent";
 
 interface BrowseComponentProps {}
 
@@ -69,15 +21,21 @@ const BrowseComponent: React.FC<BrowseComponentProps> = ({}) => {
   const [loading, setLoading] = useState<boolean>(false);
 
   const [showFilter, setShowFilter] = useState<boolean>(false);
-  const [minAge, setMinAge] = useState<string>("18");
-  const [maxAge, setMaxAge] = useState<string>("100");
+  const [minAge, setMinAge] = useState<string>("0");
+  const [maxAge, setMaxAge] = useState<string>("200");
   const [minFame, setMinFame] = useState<string>("0");
-  const [maxFame, setMaxFame] = useState<string>("10000");
-  const [maxDistance, setMaxDistance] = useState<string>("10000");
+  const [maxFame, setMaxFame] = useState<string>("200");
+  const [maxDistance, setMaxDistance] = useState<string>("100000");
   const [minCommonTags, setMinCommonTags] = useState<string>("0");
+
+  const [showProfile, setShowProfile] = useState<boolean>(false);
+  const [showProfileId, setShowProfileId] = useState<number>(-1);
 
   const limit = 6;
   const scrollRef = useRef<HTMLDivElement>(null);
+
+  const col1 = profiles.filter((_, i) => i % 2 == 0);
+  const col2 = profiles.filter((_, i) => i % 2 == 1);
 
   useEffect(() => {
     WS.setup();
@@ -86,8 +44,8 @@ const BrowseComponent: React.FC<BrowseComponentProps> = ({}) => {
       setLoading(false);
       setProfiles((prev) => {
         const combined = [...prev, ...message.profiles];
-        const unique = []
-        const seen = new Set()
+        const unique = [];
+        const seen = new Set();
 
         for (const profile of combined) {
           if (!seen.has(profile.username)) {
@@ -104,14 +62,10 @@ const BrowseComponent: React.FC<BrowseComponentProps> = ({}) => {
       }
     });
 
-    loadMore(sortBy, order, offset);
-
+    sendWSRequest(sortBy, order, offset);
   }, []);
 
-  function loadMore(sortBy: string, order: string, offset: number) {
-    if (loading || !hasMore) return;
-
-    setLoading(true);
+  function sendWSRequest(sortBy: string, order: string, offset: number) {
     WS.send({
       type: "get_browse_data",
       offset: offset,
@@ -127,6 +81,8 @@ const BrowseComponent: React.FC<BrowseComponentProps> = ({}) => {
     });
   }
 
+  function loadMore(sortBy: string, order: string, offset: number) {}
+
   function handleSortChange(newSort: string) {
     //when wanna sort, reset all profiles and start from first batch again
     setSortBy(newSort);
@@ -136,7 +92,7 @@ const BrowseComponent: React.FC<BrowseComponentProps> = ({}) => {
     setHasMore(true);
     setLoading(false);
 
-    loadMore(newSort, order, 0);
+    sendWSRequest(newSort, order, 0);
   }
 
   function handleOrderChange() {
@@ -149,7 +105,7 @@ const BrowseComponent: React.FC<BrowseComponentProps> = ({}) => {
     setHasMore(true);
     setLoading(false);
 
-    loadMore(sortBy, newOrder, 0);
+    sendWSRequest(sortBy, newOrder, 0);
   }
 
   function handleScroll() {
@@ -158,12 +114,16 @@ const BrowseComponent: React.FC<BrowseComponentProps> = ({}) => {
 
     //check the height of the div left
     if (el.scrollHeight - el.scrollTop - el.clientHeight < 10) {
-      loadMore(sortBy, order, offset);
-    }
-  }
+      if (loading || !hasMore) return;
 
-  const col1 = profiles.filter((_, i) => i % 2 == 0);
-  const col2 = profiles.filter((_, i) => i % 2 == 1);
+      setLoading(true);
+      sendWSRequest(sortBy, order, offset);
+    }
+
+    //scrollHeight = total height of the div
+    //clientHeight = height of the visible window
+    //scrollTop = height already scrolled
+  }
 
   function handleFilterSubmit() {
     setShowFilter(false);
@@ -172,7 +132,7 @@ const BrowseComponent: React.FC<BrowseComponentProps> = ({}) => {
     setHasMore(true);
     setLoading(false);
 
-    loadMore(sortBy, order, 0);
+    sendWSRequest(sortBy, order, 0);
   }
 
   return (
@@ -243,78 +203,78 @@ const BrowseComponent: React.FC<BrowseComponentProps> = ({}) => {
                 className="fixed inset-0 z-10"
                 onClick={() => setShowFilter(false)}
               />
-                <div className="absolute flex flex-col items-center right-0 mt-10 rounded border z-20 fex">
-                  <div className="flex gap-2 p-4">
-                    <label>Age: </label>
-                    <input
-                      type="text"
-                      value={minAge}
-                      onChange={(e) => {
-                        setMinAge(e.target.value);
-                      }}
-                      className="w-12 rounded border"
-                    />
-                    <p> to </p>
-                    <input
-                      type="text"
-                      value={maxAge}
-                      onChange={(e) => {
-                        setMaxAge(e.target.value);
-                      }}
-                      className="w-12 rounded border"
-                    />
-                  </div>
-                  <div className="flex gap-3 p-2">
-                    <label>Fame: </label>
-                    <input
-                      value={minFame}
-                      type="text"
-                      onChange={(e) => {
-                        setMinFame(e.target.value);
-                      }}
-                      className="w-12 rounded border"
-                    />
-                    <p> to </p>
-                    <input
-                      type="text"
-                      value={maxFame}
-                      onChange={(e) => {
-                        setMaxFame(e.target.value);
-                      }}
-                      className="w-12 rounded border"
-                    />
-                  </div>
+              <div className="absolute flex flex-col items-center right-0 mt-10 rounded border z-20 fex">
+                <div className="flex gap-2 p-4">
+                  <label>Age: </label>
+                  <input
+                    type="text"
+                    value={minAge}
+                    onChange={(e) => {
+                      setMinAge(e.target.value);
+                    }}
+                    className="w-12 rounded border"
+                  />
+                  <p> to </p>
+                  <input
+                    type="text"
+                    value={maxAge}
+                    onChange={(e) => {
+                      setMaxAge(e.target.value);
+                    }}
+                    className="w-12 rounded border"
+                  />
+                </div>
+                <div className="flex gap-3 p-2">
+                  <label>Fame: </label>
+                  <input
+                    value={minFame}
+                    type="text"
+                    onChange={(e) => {
+                      setMinFame(e.target.value);
+                    }}
+                    className="w-12 rounded border"
+                  />
+                  <p> to </p>
+                  <input
+                    type="text"
+                    value={maxFame}
+                    onChange={(e) => {
+                      setMaxFame(e.target.value);
+                    }}
+                    className="w-12 rounded border"
+                  />
+                </div>
 
-                  <div className="flex gap-3 p-2">
-                    <label>Min Common Tags: </label>
-                    <input
-                      type="text"
-                      value={minCommonTags}
-                      onChange={(e) => {
-                        setMinCommonTags(e.target.value);
-                      }}
-                      className="w-12 rounded border"
-                    />
-                  </div>
+                <div className="flex gap-3 p-2">
+                  <label>Min Common Tags: </label>
+                  <input
+                    type="text"
+                    value={minCommonTags}
+                    onChange={(e) => {
+                      setMinCommonTags(e.target.value);
+                    }}
+                    className="w-12 rounded border"
+                  />
+                </div>
 
-                  <div className="flex gap-3 p-2">
-                    <label>Max distance: </label>
-                    <input
-                      type="text"
-                      value={maxDistance}
-                      onChange={(e) => {
-                        setMaxDistance(e.target.value);
-                      }}
-                      className="w-12 rounded border"
-                    />
-                  </div>
+                <div className="flex gap-3 p-2">
+                  <label>Max distance: </label>
+                  <input
+                    type="text"
+                    value={maxDistance}
+                    onChange={(e) => {
+                      setMaxDistance(e.target.value);
+                    }}
+                    className="w-12 rounded border"
+                  />
+                </div>
 
-                  <button
-                    onClick={handleFilterSubmit}
-                    className="rounded border text-left px-2 my-2 py-2 text-sm"
-                  >
-                    Submit
-                  </button>
+                <button
+                  onClick={handleFilterSubmit}
+                  className="rounded border text-left px-2 my-2 py-2 text-sm"
+                >
+                  Submit
+                </button>
               </div>
             </>
           )}
@@ -329,17 +289,34 @@ const BrowseComponent: React.FC<BrowseComponentProps> = ({}) => {
       >
         <div className="flex flex-col">
           {col1.map((profile) => (
-            <ProfileCardComponent key={profile.username} profile={profile} />
+            <ProfileCardComponent
+              key={profile.username}
+              profile={profile}
+              setShowProfile={setShowProfile}
+              setShowProfileId={setShowProfileId}
+            />
           ))}
         </div>
         <div className="flex flex-col">
           {col2.map((profile) => (
-            <ProfileCardComponent key={profile.username} profile={profile} />
+            <ProfileCardComponent
+              key={profile.username}
+              profile={profile}
+              setShowProfile={setShowProfile}
+              setShowProfileId={setShowProfileId}
+            />
           ))}
         </div>
       </div>
 
       {loading && <p className="text-sm">Loading...</p>}
+
+      {showProfile && (
+        <VisitProfileComponent
+          profileId={showProfileId}
+          setShowProfile={setShowProfile}
+        />
+      )}
     </div>
   );
 };

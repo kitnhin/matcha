@@ -37,7 +37,7 @@ const LocationComponent: React.FC<LocationComponentProps> = ({
         setShowLocationRes(false);
         return;
     }
-    
+
     if (inputPlace.length < 3) {
       setLocationRes([]);
       setShowLocationRes(false);
@@ -109,7 +109,7 @@ const LocationComponent: React.FC<LocationComponentProps> = ({
   return (
     <div className="flex flex-col gap-2">
       <label className="text-xl font-medium text-gray-700">
-        Choose your location
+        Location
       </label>
 
       <div className="relative">

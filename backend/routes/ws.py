@@ -6,6 +6,7 @@ from pages.browse import get_browse_data
 from pages.settings import get_user_settings_data
 from pages.visit_profile import get_profile_data, handle_like_profile
 from pages.settings import save_settings
+from pages.research import get_research_data
 
 
 ws_bp = Blueprint("ws", __name__)
@@ -19,7 +20,8 @@ handlers = {
     "save_settings": save_settings,
     "get_browse_data": get_browse_data,
     "get_profile_info": get_profile_data,
-    "like_profile": handle_like_profile
+    "like_profile": handle_like_profile,
+    "get_research_data": get_research_data
 }
 
 #main websocket:

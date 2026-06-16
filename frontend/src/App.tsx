@@ -13,6 +13,7 @@ import SettingsComponent from "./components/SettingsComponent";
 import ForgotPasswordComponent from "./components/ForgotPasswordComponent";
 import BrowseComponent from "./components/BrowseComponent";
 import VisitProfileComponent from "./components/VisitProfileComponent";
+import ResearchComponent from "./components/ResearchComponent";
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
@@ -73,7 +74,7 @@ function App() {
 
             <Route path="/browse" element={<BrowseComponent />} />
 
-            <Route path="/profile" element={<VisitProfileComponent />} />
+            <Route path="/research" element={<ResearchComponent />} />
     
           </>
         )}

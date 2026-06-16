@@ -7,19 +7,15 @@ def calc_distance(lat1, long1, lat2, long2):
     return math.sqrt((lat1 - lat2)**2 + (long1 - long2)**2)
 
 
-def get_browse_data(ws, user_id, obj):
+def get_research_data(ws, user_id, obj):
+    print(obj)
     #get user info
-    cur.execute("SELECT gender, sexual_preference, age, latitude, longitude FROM users WHERE id = %s", (user_id,))
-    user = cur.fetchone()
-    user_gender, user_pref, user_age, user_lat, user_long = user
-
     cur.execute("SELECT tag from tags WHERE user_id = %s", (user_id,))
     user_tags = set(row[0] for row in cur.fetchall())
 
-    #get potential matches
-    cur.execute("SELECT id, username, age, profile_pic, location, latitude, longitude, fame FROM users "
-                "WHERE id != %s AND is_complete = true AND (gender = %s or gender = 'others') "
-                "AND (sexual_preference = %s or sexual_preference = 'others')", (user_id, user_pref, user_gender))
+    #get other profiles
+    cur.execute("SELECT id, username, age, profile_pic, location, fame FROM users "
+                "WHERE id != %s", (user_id,))
     profiles = cur.fetchall()
     profile_list = []
 
@@ -38,12 +34,10 @@ def get_browse_data(ws, user_id, obj):
 
     #build profile list
     profile_list = []
-    for p_id, p_username, p_age, p_pfp, p_location, p_lat, p_long, p_fame in profiles:
+    for p_id, p_username, p_age, p_pfp, p_location, p_fame in profiles:
         p_tags = p_tags_mp.get(p_id, set())
         common_tags_num = len(user_tags.intersection(p_tags))
-        distance = calc_distance(user_lat, user_long, p_lat, p_long)
-        score = 0.2*p_fame + common_tags_num - abs(user_age - p_age)*0.5 - distance*0.2 #algo designed for "smart matches"
-        profile_list.append(Profile(p_id, p_username, p_age, p_location, common_tags_num, p_pfp, p_fame, score, distance, p_tags))
+        profile_list.append(Profile(p_id, p_username, p_age, p_location, common_tags_num, p_pfp, p_fame, 0, 0, p_tags))
 
     #process profiles based on specifications
     sort = obj.get("sort", "Default")
@@ -68,10 +62,10 @@ def get_browse_data(ws, user_id, obj):
                     (obj.get("min_age") <= p.age <= obj.get("max_age", 0)) and
                     (obj.get("min_fame") <= p.fame <= obj.get("max_fame")) and
                     (p.common_tags >= obj.get("min_common_tags")) and
-                    (p.distance <= obj.get("max_distance"))]
+                    (p.distance <= obj.get("max_distance")) and
+                    (obj.get("location") is None or p.location == obj.get("location").get("place_name")) and
+                    (obj.get("tags", []) == [] or set(obj.get("tags", [])).issubset(p.tags))]
     
 
     send_profiles = [p.to_dict() for p in profile_list[offset:offset + limit]]
-    ws.send(json.dumps({"type": "browseData", "profiles": send_profiles}))
-
-
+    ws.send(json.dumps({"type": "researchData", "profiles": send_profiles}))
