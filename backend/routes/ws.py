@@ -1,12 +1,14 @@
 from flask import Blueprint, request, session
 from flask_sock import Sock
 import json
+from classes.ws_conn import ws_conn
 from pages.home import get_user_home_data
 from pages.browse import get_browse_data
 from pages.settings import get_user_settings_data
 from pages.visit_profile import get_profile_data, handle_like_profile
 from pages.settings import save_settings
 from pages.research import get_research_data
+from pages.chat import get_chat_data, handle_new_message
 
 
 ws_bp = Blueprint("ws", __name__)
@@ -21,7 +23,9 @@ handlers = {
     "get_browse_data": get_browse_data,
     "get_profile_info": get_profile_data,
     "like_profile": handle_like_profile,
-    "get_research_data": get_research_data
+    "get_research_data": get_research_data,
+    "get_chat_data": get_chat_data,
+    "new_message": handle_new_message
 }
 
 #main websocket:
@@ -30,7 +34,7 @@ def handle_websocket(ws):
     user_id = session.get("user_id")
     print(f"WebSocket connected, user_id: {user_id}")
 
-    ws.send(json.dumps({"type": "test", "data": "hello from server, welcome websocket ~~"})) #on connect
+    ws_conn.add(user_id, ws) #on connect
 
     try:
         while True:
@@ -46,5 +50,6 @@ def handle_websocket(ws):
             
 
     except Exception as e:
-        print(f"WEBSOCKET DCED: {e}")
+        ws_conn.remove(user_id)
+        print(e)
 

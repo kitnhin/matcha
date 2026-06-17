@@ -47,6 +47,14 @@ CREATE TABLE IF NOT EXISTS views (
     UNIQUE (viewer_id, viewed_id)
 );
 
+CREATE TABLE IF NOT EXISTS messages (
+    id SERIAL PRIMARY KEY,
+    sender_id INT,
+    receiver_id INT,
+    content TEXT NOT NULL,
+    created_at TIMESTAMP DEFAULT NOW() --auto put time when insert
+);
+
 -- Separated tags and pics into own tables cuz imagine ltr need get all users wif certain tag,
 -- if use TEXT[] inside users table, gonna be quite diff to find all users wif that tag
 -- gonna be diff to edit the tags oso if tags r deleted or modified (extract, join etc)
