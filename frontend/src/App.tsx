@@ -51,7 +51,7 @@ function App() {
         <Route path="/reset-password" element={<ForgotPasswordComponent />} />
 
         {isLoggedIn && (
-          <Route element={<MainLayout />}>
+          <Route element={<MainLayout setIsLoggedIn={setIsLoggedIn}/>}>
             <Route
               path="/home"
               element={<HomeComponent setIsLoggedIn={setIsLoggedIn} />}

@@ -2,7 +2,8 @@ import { useEffect, useState } from "react";
 import "../App.css";
 import WS from "../class/ws";
 import defaultPfp from "../assets/default_pfp.jpg";
-import { FiAlertTriangle } from "react-icons/fi";
+import { FiAlertTriangle, FiUserX } from "react-icons/fi";
+import ConfirmBlockComponent from "./ConfirmBlockComponent";
 
 interface VisitProfileComponentProps {
   profileId: number;
@@ -39,6 +40,8 @@ const VisitProfileComponent: React.FC<VisitProfileComponentProps> = ({
   const [reportStatus, setReportStatus] = useState<boolean>(false);
   const [likeErrorMessage, setLikeErrorMessage] = useState<string>("");
   const [reportErrorMessage, setReportErrorMessage] = useState<string>("");
+  const [showBlockConfirm, setShowBlockConfirm] = useState<boolean>(false);
+  const [blockErrorMessage, setBlockErrorMessage] = useState<string>("");
 
   useEffect(() => {
     // WS.setup();
@@ -130,21 +133,30 @@ const VisitProfileComponent: React.FC<VisitProfileComponentProps> = ({
                   )}
                 </div>
 
-                {reportStatus ? (
-                  <div className="flex flex-col ml-auto items-center justify-center text-gray-400">
-                    <button>
-                      <FiAlertTriangle className="w-5 h-5" />
-                    </button>
-                    <p className="text-xs">Reported</p>
-                  </div>
-                ) : (
+                <div className="flex ml-auto gap-2">
+                  {reportStatus ? (
+                    <div className="flex flex-col ml-auto items-center justify-center text-gray-400">
+                      <button>
+                        <FiAlertTriangle className="w-5 h-5" />
+                      </button>
+                      <p className="text-xs">Reported</p>
+                    </div>
+                  ) : (
+                    <div className="flex flex-col ml-auto items-center justify-center">
+                      <button onClick={() => handleReport()}>
+                        <FiAlertTriangle className="w-5 h-5" />
+                      </button>
+                      <p className="text-xs">Report</p>
+                    </div>
+                  )}
+
                   <div className="flex flex-col ml-auto items-center justify-center">
-                    <button onClick={() => handleReport()}>
-                      <FiAlertTriangle className="w-5 h-5" />
+                    <button onClick={() => setShowBlockConfirm(true)}>
+                      <FiUserX className="w-5 h-5" />
                     </button>
-                    <p className="text-xs">Report</p>
+                    <p className="text-xs">Block</p>
                   </div>
-                )}
+                </div>
               </div>
 
               <div className="flex flex-col gap-2 mt-5">
@@ -229,6 +241,10 @@ const VisitProfileComponent: React.FC<VisitProfileComponentProps> = ({
                 {reportErrorMessage && (
                   <p className="text-red-500 text-sm">{reportErrorMessage}</p>
                 )}
+                {blockErrorMessage && (
+                    <p className="text-red-500 text-sm">{blockErrorMessage}</p>
+                )}
+
                 <div className="flex flex-col gap-1 items-center">
                   <button
                     onClick={() => handleLike(!likeStatus)}
@@ -249,6 +265,15 @@ const VisitProfileComponent: React.FC<VisitProfileComponentProps> = ({
         <button onClick={() => setShowProfile(false)} className="text-xl">
           ← Back
         </button>
+
+        {showBlockConfirm && (
+          <ConfirmBlockComponent
+            setShowConfirmation={setShowBlockConfirm}
+            setShowProfile={setShowProfile}
+            setBlockErrorMessage={setBlockErrorMessage}
+            profile_id={profileId}
+          />
+        )}
       </div>
     </>
   );

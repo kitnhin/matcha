@@ -73,6 +73,10 @@ def get_profile_data(ws, user_id, obj):
             (user_id, profile_id),
         )
 
+    #see if the user is blocked by other
+    cur.execute("SELECT * FROM blocks WHERE blocked_id = %s AND blocker_id = %s", (user_id, profile_id))
+    is_blocked = cur.fetchone() is not None
+
     # if its the user himself, can send viewed and likes
     if profile_id == user_id:
         cur.execute("SELECT liker_id FROM likes WHERE liked_id = %s", (user_id,))
@@ -88,7 +92,7 @@ def get_profile_data(ws, user_id, obj):
                 "SELECT username FROM users WHERE id IN %s", (tuple(viewed_by),)
             )
             viewed_by = [row[0] for row in cur.fetchall()]
-    else:
+    elif not is_blocked:
         other_ws = ws_conn.get(profile_id)
         if other_ws:
             cur.execute("SELECT username FROM users WHERE id = %s", (user_id,))
@@ -193,12 +197,17 @@ def handle_like_profile(ws, user_id, obj):
         )
         notif_msg = f"{username} unliked your profile"
 
-    other_ws = ws_conn.get(profile_id)
-    if other_ws:
-        if other_liked:  # if the other already liked user, send json to show new chat for other user, and show connected in profile
-            get_user_home_data(other_ws, profile_id, {"type": "getUserHomeData"})
-        other_ws.send(json.dumps({"type": "notif", "senderUsername": username, "message": notif_msg}))
-        other_ws.send(json.dumps({"type": "updateIsConnected", "isConnected": is_connected}))
+    #see if the user is blocked by other
+    cur.execute("SELECT * FROM blocks WHERE blocked_id = %s AND blocker_id = %s", (user_id, profile_id))
+    is_blocked = cur.fetchone() is not None
+
+    if not is_blocked:
+        other_ws = ws_conn.get(profile_id)
+        if other_ws:
+            if other_liked:  # if the other already liked user, send json to show new chat for other user, and show connected in profile
+                get_user_home_data(other_ws, profile_id, {"type": "getUserHomeData"})
+            other_ws.send(json.dumps({"type": "notif", "senderUsername": username, "message": notif_msg}))
+            other_ws.send(json.dumps({"type": "updateIsConnected", "isConnected": is_connected}))
 
     conn.commit()
     ws.send(
@@ -234,3 +243,24 @@ def handle_report_profile(ws, user_id, obj):
     cur.execute("INSERT INTO reports (reporter_id, reported_id) VALUES (%s, %s) ON CONFLICT DO NOTHING", (user_id, profile_id))
     conn.commit()
     ws.send(json.dumps({"type": "reportProfileStatus", "status": "success", "errorMessage": "", "reportStatus": True}))
+
+def handle_block_profile(ws, user_id, obj):
+    profile_id = obj.get("profile_id")
+    
+    if profile_id == -1 or profile_id == user_id:
+        ws.send(
+            json.dumps(
+                {
+                    "type": "blockProfileStatus",
+                    "status": "fail",
+                    "errorMessage": "You cant block urself :D",
+                    "blockStatus": False,
+                }
+            )
+        )
+        return
+    
+    cur.execute("INSERT INTO blocks (blocker_id, blocked_id) VALUES (%s, %s) ON CONFLICT DO NOTHING", (user_id, profile_id))
+    cur.execute("DELETE FROM likes WHERE liker_id = %s AND liked_id = %s", (user_id, profile_id))
+    cur.execute("DELETE FROM messages WHERE (sender_id = %s AND receiver_id = %s) OR (sender_id = %s AND receiver_id = %s)", (user_id, profile_id, profile_id, user_id))
+    ws.send(json.dumps({"type": "blockProfileStatus", "status": "success", "errorMessage": ""}))    

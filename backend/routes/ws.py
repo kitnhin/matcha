@@ -5,7 +5,7 @@ from classes.ws_conn import ws_conn
 from pages.home import get_user_home_data
 from pages.browse import get_browse_data
 from pages.settings import get_user_settings_data
-from pages.visit_profile import get_profile_data, handle_like_profile, handle_report_profile
+from pages.visit_profile import get_profile_data, handle_like_profile, handle_report_profile, handle_block_profile
 from pages.settings import save_settings
 from pages.research import get_research_data
 from pages.chat import get_chat_data, handle_new_message
@@ -24,6 +24,7 @@ handlers = {
     "get_profile_info": get_profile_data,
     "like_profile": handle_like_profile,
     "report_profile": handle_report_profile,
+    "block_profile": handle_block_profile,
     "get_research_data": get_research_data,
     "get_chat_data": get_chat_data,
     "new_message": handle_new_message

@@ -36,9 +36,17 @@ def get_browse_data(ws, user_id, obj):
             p_tags_mp[p_id] = set()
         p_tags_mp[p_id].add(tags)
 
+    #get all blocks
+    cur.execute("SELECT blocked_id FROM blocks WHERE blocker_id = %s", (user_id,))
+    blocked_ids = set(row[0] for row in cur.fetchall())
+
     #build profile list
     profile_list = []
     for p_id, p_username, p_age, p_pfp, p_location, p_lat, p_long, p_fame in profiles:
+
+        if p_id in blocked_ids:
+            continue
+
         p_tags = p_tags_mp.get(p_id, set())
         common_tags_num = len(user_tags.intersection(p_tags))
         distance = calc_distance(user_lat, user_long, p_lat, p_long)

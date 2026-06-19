@@ -58,13 +58,15 @@ CREATE TABLE IF NOT EXISTS messages (
 CREATE TABLE IF NOT EXISTS reports (
     id SERIAL PRIMARY KEY,
     reporter_id INT,
-    reported_id INT
+    reported_id INT,
+    UNIQUE (reporter_id, reported_id)
 );
 
 CREATE TABLE IF NOT EXISTS blocks (
     id SERIAL PRIMARY KEY,
     blocker_id INT,
-    blocked_id INT
+    blocked_id INT,
+    UNIQUE (blocker_id, blocked_id)
 )
 
 -- Separated tags and pics into own tables cuz imagine ltr need get all users wif certain tag,
