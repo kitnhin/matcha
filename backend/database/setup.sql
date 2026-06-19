@@ -55,6 +55,18 @@ CREATE TABLE IF NOT EXISTS messages (
     created_at TIMESTAMP DEFAULT NOW() --auto put time when insert
 );
 
+CREATE TABLE IF NOT EXISTS reports (
+    id SERIAL PRIMARY KEY,
+    reporter_id INT,
+    reported_id INT
+);
+
+CREATE TABLE IF NOT EXISTS blocks (
+    id SERIAL PRIMARY KEY,
+    blocker_id INT,
+    blocked_id INT
+)
+
 -- Separated tags and pics into own tables cuz imagine ltr need get all users wif certain tag,
 -- if use TEXT[] inside users table, gonna be quite diff to find all users wif that tag
 -- gonna be diff to edit the tags oso if tags r deleted or modified (extract, join etc)

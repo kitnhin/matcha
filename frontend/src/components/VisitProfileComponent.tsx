@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import "../App.css";
 import WS from "../class/ws";
 import defaultPfp from "../assets/default_pfp.jpg";
+import { FiAlertTriangle } from "react-icons/fi";
 
 interface VisitProfileComponentProps {
   profileId: number;
@@ -35,7 +36,9 @@ const VisitProfileComponent: React.FC<VisitProfileComponentProps> = ({
   const [profile, setProfile] = useState<ProfileData | null>(null);
   const [likeStatus, setLikeStatus] = useState<boolean>(false);
   const [connectedStatus, setConnectedStatus] = useState<boolean>(false);
+  const [reportStatus, setReportStatus] = useState<boolean>(false);
   const [likeErrorMessage, setLikeErrorMessage] = useState<string>("");
+  const [reportErrorMessage, setReportErrorMessage] = useState<string>("");
 
   useEffect(() => {
     // WS.setup();
@@ -49,6 +52,10 @@ const VisitProfileComponent: React.FC<VisitProfileComponentProps> = ({
       if (data.isConnected) {
         setConnectedStatus(true);
       }
+
+      if (data.isReported) {
+        setReportStatus(true);
+      }
     });
 
     WS.add_callback("likeProfileStatus", (data) => {
@@ -60,9 +67,17 @@ const VisitProfileComponent: React.FC<VisitProfileComponentProps> = ({
       }
     });
 
+    WS.add_callback("reportProfileStatus", (data) => {
+      if (data.status === "success") {
+        setReportStatus(data.reportStatus);
+      } else {
+        setReportErrorMessage(data.errorMessage);
+      }
+    });
+
     WS.add_callback("updateIsConnected", (data) => {
-        setConnectedStatus(data.isConnected);
-    })
+      setConnectedStatus(data.isConnected);
+    });
 
     WS.send({ type: "get_profile_info", profile_id: profileId });
   }, []);
@@ -71,6 +86,13 @@ const VisitProfileComponent: React.FC<VisitProfileComponentProps> = ({
     WS.send({
       type: "like_profile",
       like_status: newLikeStatus,
+      profile_id: profileId,
+    });
+  }
+
+  function handleReport() {
+    WS.send({
+      type: "report_profile",
       profile_id: profileId,
     });
   }
@@ -107,6 +129,22 @@ const VisitProfileComponent: React.FC<VisitProfileComponentProps> = ({
                     </p>
                   )}
                 </div>
+
+                {reportStatus ? (
+                  <div className="flex flex-col ml-auto items-center justify-center text-gray-400">
+                    <button>
+                      <FiAlertTriangle className="w-5 h-5" />
+                    </button>
+                    <p className="text-xs">Reported</p>
+                  </div>
+                ) : (
+                  <div className="flex flex-col ml-auto items-center justify-center">
+                    <button onClick={() => handleReport()}>
+                      <FiAlertTriangle className="w-5 h-5" />
+                    </button>
+                    <p className="text-xs">Report</p>
+                  </div>
+                )}
               </div>
 
               <div className="flex flex-col gap-2 mt-5">
@@ -188,18 +226,21 @@ const VisitProfileComponent: React.FC<VisitProfileComponentProps> = ({
                 {likeErrorMessage && (
                   <p className="text-red-500 text-sm">{likeErrorMessage}</p>
                 )}
-                <div className="flex flex-col gap-1 items-center">
-                <button
-                  onClick={() => handleLike(!likeStatus)}
-                  className={`text-2xl border rounded w-full ${
-                    likeStatus ? "text-red-500" : "text-gray-300"
-                  }`}
-                >
-                  ♥
-                </button>
-                {connectedStatus && (
-                  <p className="text-sm text-gray-500">(Connected)</p>
+                {reportErrorMessage && (
+                  <p className="text-red-500 text-sm">{reportErrorMessage}</p>
                 )}
+                <div className="flex flex-col gap-1 items-center">
+                  <button
+                    onClick={() => handleLike(!likeStatus)}
+                    className={`text-2xl border rounded w-full ${
+                      likeStatus ? "text-red-500" : "text-gray-300"
+                    }`}
+                  >
+                    ♥
+                  </button>
+                  {connectedStatus && (
+                    <p className="text-sm text-gray-500">(Connected)</p>
+                  )}
                 </div>
               </div>
             </>

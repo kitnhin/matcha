@@ -47,6 +47,10 @@ def get_profile_data(ws, user_id, obj):
         cur.execute("SELECT last_seen FROM users WHERE id = %s", (profile_id,))
         online_status = cur.fetchone()[0].strftime("%d %b, %H:%M")
 
+    # get reported status
+    cur.execute("SELECT * FROM reports WHERE reporter_id = %s AND reported_id = %s", (user_id, profile_id))
+    is_reported = cur.fetchone() is not None
+
     # see if profile is liked and connected
     cur.execute(
         "SELECT * FROM likes WHERE liker_id = %s AND liked_id = %s",
@@ -121,6 +125,7 @@ def get_profile_data(ws, user_id, obj):
                 "isUser": (profile_id == user_id),
                 "isLiked": is_liked,
                 "isConnected": is_connected,
+                "isReported": is_reported,
                 "likedBy": liked_by if profile_id == user_id else None,
                 "viewedBy": viewed_by if profile_id == user_id else None,
             }
@@ -133,9 +138,7 @@ def handle_like_profile(ws, user_id, obj):
     profile_id = obj.get("profile_id")
 
     # check if its the user himself
-    if (
-        profile_id == -1 or profile_id == user_id
-    ):  # profile_id -1 means the user himself
+    if (profile_id == -1 or profile_id == user_id):  # profile_id -1 means the user himself
         ws.send(
             json.dumps(
                 {
@@ -210,3 +213,24 @@ def handle_like_profile(ws, user_id, obj):
         )
     )
     ws.send(json.dumps({"type": "updateIsConnected", "isConnected": is_connected}))
+
+
+def handle_report_profile(ws, user_id, obj):
+    profile_id = obj.get("profile_id")
+    
+    if profile_id == -1 or profile_id == user_id:
+        ws.send(
+            json.dumps(
+                {
+                    "type": "reportProfileStatus",
+                    "status": "fail",
+                    "errorMessage": "You cant report urself :D",
+                    "reportStatus": False,
+                }
+            )
+        )
+        return
+    
+    cur.execute("INSERT INTO reports (reporter_id, reported_id) VALUES (%s, %s) ON CONFLICT DO NOTHING", (user_id, profile_id))
+    conn.commit()
+    ws.send(json.dumps({"type": "reportProfileStatus", "status": "success", "errorMessage": "", "reportStatus": True}))
