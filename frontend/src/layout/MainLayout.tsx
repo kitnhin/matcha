@@ -37,7 +37,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({ setIsLoggedIn }) => {
       )}
       <button
         onClick={() => {
-          setShowConfirmLogout(true);
+          setShowConfirmLogout(true); 
         }}
         className="flex flex-col justify-center items-center fixed bottom-4 right-4 w-10 h-10 p-2 rounded border text-red-500 hover:text-red-700"
       >
