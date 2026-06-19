@@ -22,6 +22,7 @@ interface ProfileData {
   age: number;
   extraPics: string[];
   tags: string[];
+  onlineStatus: string;
   isUser: boolean;
   likedBy: string[];
   viewedBy: string[];
@@ -33,10 +34,11 @@ const VisitProfileComponent: React.FC<VisitProfileComponentProps> = ({
 }) => {
   const [profile, setProfile] = useState<ProfileData | null>(null);
   const [likeStatus, setLikeStatus] = useState<boolean>(false);
+  const [connectedStatus, setConnectedStatus] = useState<boolean>(false);
   const [likeErrorMessage, setLikeErrorMessage] = useState<string>("");
 
   useEffect(() => {
-    WS.setup();
+    // WS.setup();
 
     WS.add_callback("getProfile", (data) => {
       const { type, status, ...profileData } = data;
@@ -44,15 +46,23 @@ const VisitProfileComponent: React.FC<VisitProfileComponentProps> = ({
       if (data.isLiked) {
         setLikeStatus(true);
       }
+      if (data.isConnected) {
+        setConnectedStatus(true);
+      }
     });
 
     WS.add_callback("likeProfileStatus", (data) => {
       if (data.status === "success") {
         setLikeStatus(data.likeStatus);
+        setConnectedStatus(data.connectedStatus);
       } else {
         setLikeErrorMessage(data.errorMessage);
       }
     });
+
+    WS.add_callback("updateIsConnected", (data) => {
+        setConnectedStatus(data.isConnected);
+    })
 
     WS.send({ type: "get_profile_info", profile_id: profileId });
   }, []);
@@ -85,12 +95,21 @@ const VisitProfileComponent: React.FC<VisitProfileComponentProps> = ({
                   alt="profile"
                   className="w-12 h-12 rounded-full object-cover"
                 />
-
-                <h1 className="mb-6 text-center text-2xl font-bold text-gray-800">
-                  {profile.username}'s profile
-                </h1>
+                <div className="flex flex-col text-left">
+                  <h1 className="text-2xl font-bold text-gray-800">
+                    {profile.username}'s profile
+                  </h1>
+                  {profile.onlineStatus === "online" ? (
+                    <p className="text-green-500 text-sm">Online</p>
+                  ) : (
+                    <p className="text-gray-500 text-sm">
+                      Last online: {profile.onlineStatus}
+                    </p>
+                  )}
+                </div>
               </div>
-              <div className="flex flex-col gap-2">
+
+              <div className="flex flex-col gap-2 mt-5">
                 <p>{`First Name: ${profile.firstName}`}</p>
                 <p>{`Last Name: ${profile.lastName}`}</p>
                 <p>{`Age: ${profile.age}`}</p>
@@ -169,15 +188,19 @@ const VisitProfileComponent: React.FC<VisitProfileComponentProps> = ({
                 {likeErrorMessage && (
                   <p className="text-red-500 text-sm">{likeErrorMessage}</p>
                 )}
-
+                <div className="flex flex-col gap-1 items-center">
                 <button
                   onClick={() => handleLike(!likeStatus)}
-                  className={`text-2xl border rounded ${
+                  className={`text-2xl border rounded w-full ${
                     likeStatus ? "text-red-500" : "text-gray-300"
                   }`}
                 >
                   ♥
                 </button>
+                {connectedStatus && (
+                  <p className="text-sm text-gray-500">(Connected)</p>
+                )}
+                </div>
               </div>
             </>
           )}

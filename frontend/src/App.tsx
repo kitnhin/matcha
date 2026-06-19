@@ -12,8 +12,8 @@ import ProfileSetupComponent from "./components/ProfileSetupComponent";
 import SettingsComponent from "./components/SettingsComponent";
 import ForgotPasswordComponent from "./components/ForgotPasswordComponent";
 import BrowseComponent from "./components/BrowseComponent";
-import VisitProfileComponent from "./components/VisitProfileComponent";
 import ResearchComponent from "./components/ResearchComponent";
+import MainLayout from "./layout/MainLayout";
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
@@ -33,22 +33,11 @@ function App() {
           element={<LoginComponent setIsLoggedIn={setIsLoggedIn} />}
         />
 
-        <Route
-          path="/home"
-          element={
-            isLoggedIn ? (
-              <HomeComponent setIsLoggedIn={setIsLoggedIn} />
-            ) : (
-              <Navigate to="/login" replace />
-            )
-          }
-        />
-
         <Route path="/register" element={<RegisterComponent />} />
 
         <Route path="/verify-email" element={<VerifyEmailComponent />} />
 
-        <Route
+        {/* <Route
           path="/setup"
           element={
             isLoggedIn ? (
@@ -57,14 +46,17 @@ function App() {
               <Navigate to="/login" replace />
             )
           }
-        />
+        /> */}
 
         <Route path="/reset-password" element={<ForgotPasswordComponent />} />
 
-        <Route path="*" element={<ErrorPageNotFoundComponent />} />
-
         {isLoggedIn && (
-          <>
+          <Route element={<MainLayout />}>
+            <Route
+              path="/home"
+              element={<HomeComponent setIsLoggedIn={setIsLoggedIn} />}
+            />
+
             <Route
               path="/setup"
               element={<ProfileSetupComponent setIsLoggedIn={setIsLoggedIn} />}
@@ -75,9 +67,10 @@ function App() {
             <Route path="/browse" element={<BrowseComponent />} />
 
             <Route path="/research" element={<ResearchComponent />} />
-    
-          </>
+          </Route>
         )}
+
+        <Route path="*" element={<ErrorPageNotFoundComponent />} />
       </Routes>
     </>
   );

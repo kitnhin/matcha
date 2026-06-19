@@ -6,6 +6,7 @@ import json
 def get_chat_data(ws, user_id, obj):
     other_username = obj.get("other_username")
 
+    #check if user exists
     cur.execute("SELECT id FROM users WHERE username = %s", (other_username,))
     other_id = cur.fetchone()[0]
 
@@ -20,6 +21,24 @@ def get_chat_data(ws, user_id, obj):
             )
         )
         return
+    
+    #checked if they liked each other
+    cur.execute("SELECT * FROM likes WHERE liker_id = %s AND liked_id = %s", (user_id, other_id))
+    user_liked = cur.fetchone()
+    cur.execute("SELECT * FROM likes WHERE liker_id = %s AND liked_id = %s", (other_id, user_id))
+    liked_user = cur.fetchone()
+    if not user_liked or not liked_user:
+        ws.send(
+            json.dumps(
+                {
+                    "type": "getChatData",
+                    "status": "fail",
+                    "errorMessage": "You are no longer connected with this user",
+                }
+            )
+        )
+        return
+
 
     # get convo messages
     cur.execute(
@@ -68,6 +87,23 @@ def handle_new_message(ws, user_id, obj):
                     "type": "newMessage",
                     "status": "fail",
                     "errorMessage": "User not found",
+                }
+            )
+        )
+        return
+    
+    #checked if they liked each other
+    cur.execute("SELECT * FROM likes WHERE liker_id = %s AND liked_id = %s", (user_id, other_id))
+    user_liked = cur.fetchone()
+    cur.execute("SELECT * FROM likes WHERE liker_id = %s AND liked_id = %s", (other_id, user_id))
+    liked_user = cur.fetchone()
+    if not user_liked or not liked_user:
+        ws.send(
+            json.dumps(
+                {
+                    "type": "newMessage",
+                    "status": "fail",
+                    "errorMessage": "You are no longer connected with this user",
                 }
             )
         )
@@ -128,6 +164,15 @@ def handle_new_message(ws, user_id, obj):
                         "senderUsername": sender_username,
                         "content": content,
                     },
+                }
+            )
+        )
+        other_ws.send(
+            json.dumps(
+                {
+                    "type": "notif",
+                    "senderUsername": sender_username,
+                    "message": f"New message from {sender_username}",
                 }
             )
         )

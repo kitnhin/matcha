@@ -54,7 +54,7 @@ const ResearchComponent: React.FC<ResearchComponentProps> = ({}) => {
   const col2 = profiles.filter((_, i) => i % 2 == 1);
 
   useEffect(() => {
-    WS.setup();
+    // WS.setup();
 
     WS.add_callback("researchData", (message) => {
       setLoading(false);

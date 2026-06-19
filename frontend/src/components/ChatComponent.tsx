@@ -22,6 +22,7 @@ const ChatComponent: React.FC<ChatComponentProps> = ({
   const [otherPfp, setOtherPfp] = useState<string>("");
   const [userPfp, setUserPfp] = useState<string>("");
   const [inputContent, setInputContent] = useState<string>("");
+  const [errorMsg, setErrorMsg] = useState<string>("");
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
@@ -31,13 +32,23 @@ const ChatComponent: React.FC<ChatComponentProps> = ({
 
   useEffect(() => {
     WS.add_callback("getChatData", (message) => {
-      setMessages(message.messages || []);
-      setOtherPfp(message.otherPfp);
-      setUserPfp(message.userPfp);
+      if(message.status === "success") {
+        setMessages(message.messages || []);
+        setOtherPfp(message.otherPfp);
+        setUserPfp(message.userPfp);
+      }
+      else {
+        setErrorMsg(message.errorMessage);
+      }
+      WS.openChat = otherUsername;
     });
 
     WS.add_callback("newMessage", (message) => {
-      setMessages((prev) => [...prev, message.newMessage]);
+      if (message.status === "success") {
+        setMessages((prev) => [...prev, message.newMessage]);
+      } else {
+        setErrorMsg(message.errorMessage);
+      }
     });
 
     WS.send({ type: "get_chat_data", other_username: otherUsername });
@@ -56,7 +67,10 @@ const ChatComponent: React.FC<ChatComponentProps> = ({
     // Blur bg
     <div
       className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center"
-      onClick={() => setShowChat(false)}
+      onClick={() => {
+        setShowChat(false);
+        WS.openChat = null;
+      }}
     >
       {/* Main popup */}
       <div
@@ -73,7 +87,10 @@ const ChatComponent: React.FC<ChatComponentProps> = ({
           <p className="text-lg font-semibold flex-1">{otherUsername}</p>
           <button
             className="text-gray-500 hover:text-gray-700"
-            onClick={() => setShowChat(false)}
+            onClick={() => {
+              setShowChat(false);
+              WS.openChat = null;
+            }}
           >
             ✕
           </button>
@@ -118,19 +135,23 @@ const ChatComponent: React.FC<ChatComponentProps> = ({
         </div>
 
         {/* Input */}
-        <div className="flex gap-2 p-3">
-          <input
-            className="border w-full p-2 rounded"
-            value={inputContent}
-            onChange={(e) => setInputContent(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === "Enter") sendMessage();
-            }}
-          ></input>
-          <button onClick={() => sendMessage()}>
-            <FiSend />
-          </button>
-        </div>
+        {errorMsg === "" ? (
+          <div className="flex gap-2 p-3">
+            <input
+              className="border w-full p-2 rounded"
+              value={inputContent}
+              onChange={(e) => setInputContent(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") sendMessage();
+              }}
+            ></input>
+            <button onClick={() => sendMessage()}>
+              <FiSend />
+            </button>
+          </div>
+        ) : (
+          <p className="text-red-500">{errorMsg}</p>
+        )}
       </div>
     </div>
   );

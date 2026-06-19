@@ -38,7 +38,7 @@ const BrowseComponent: React.FC<BrowseComponentProps> = ({}) => {
   const col2 = profiles.filter((_, i) => i % 2 == 1);
 
   useEffect(() => {
-    WS.setup();
+    // WS.setup();
 
     WS.add_callback("browseData", (message) => {
       setLoading(false);

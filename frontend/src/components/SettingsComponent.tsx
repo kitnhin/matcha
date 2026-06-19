@@ -72,7 +72,7 @@ const SettingsComponent: React.FC<SettingsProps> = ({}) => {
   }
 
   useEffect(() => {
-    WS.setup();
+    // WS.setup();
 
     WS.add_callback("userSettingsData", (message) => {
       setEmail(message.email);

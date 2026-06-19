@@ -32,7 +32,6 @@ const HomeComponent: React.FC<HomeComponentProps> = ({ setIsLoggedIn }) => {
   const [chatOtherUsername, setChatOtherUsername] = useState<string>("");
 
   useEffect(() => {
-    WS.setup();
     WS.add_callback("userHomeData", (message) => {
       setUsername(message.username);
       setFame(message.fame);
@@ -87,7 +86,10 @@ const HomeComponent: React.FC<HomeComponentProps> = ({ setIsLoggedIn }) => {
             Settings
           </button>
           <button
-            onClick={() => handleLogout(setIsLoggedIn)}
+            onClick={() => {
+              handleLogout(setIsLoggedIn);
+              navigate("/login");
+            }}
             className="px-4 py-2 text-sm bg-red-500 text-white rounded hover:bg-red-600"
           >
             Logout
