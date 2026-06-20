@@ -1,5 +1,7 @@
 from email_validator import validate_email, EmailNotValidError
 from extensions import conn, cur, mail
+import re #regex shit
+import base64
     
 
 #configurables
@@ -24,6 +26,8 @@ def check_register_input(data):
 
 def check_setup_input(request):
     data = request.form
+    profile_pic = request.files.get("profile_pic")
+    extra_pics = request.files.getlist("extra_pics")
 
     check_other_fields_res = check_other_fields(
         data.get("gender", ""), data.get("sexual_preference", ""), int(data.get("age", "")), 
@@ -31,6 +35,16 @@ def check_setup_input(request):
     
     if check_other_fields_res["status"] == "fail":
         return {"setupStatus" : "fail", "errorMessage" : check_other_fields_res["errorMessage"]}
+    
+    if profile_pic:
+        if not check_pics_size(base64.b64encode(profile_pic.read()).decode("utf-8")):
+            return {"setupStatus" : "fail", "errorMessage" : "Profile picture size exceeds 5MB limit"}
+        profile_pic.seek(0)
+    
+    for pic in extra_pics:
+        if not check_pics_size(base64.b64encode(pic.read()).decode("utf-8")):
+            return {"setupStatus" : "fail", "errorMessage" : "Extra picture exceed 5MB limit"}
+        pic.seek(0)
     
     return {"setupStatus" : "success"}
 
@@ -55,6 +69,9 @@ def check_name(username, first_name, last_name, user_id=None):
     
     if len(last_name) < 1:
         return {"status" : "fail", "errorMessage" : "Last name cannot be empty"}
+    
+    if not (re.match(r'^[a-zA-Z0-9_]+$', username) and re.match(r'^[a-zA-Z0-9_]+$', first_name) and re.match(r'^[a-zA-Z0-9_]+$', last_name)):
+        return {"status" : "fail", "errorMessage" : "Names can only contain letters, numbers, and underscores"}
     
     #check for duplicate name
     if user_id:
@@ -111,3 +128,11 @@ def check_other_fields(gender, sexual_preference, age, location, lat, long):
         return {"status" : "fail", "errorMessage" : "Invalid location"}
     
     return {"status" : "success"}
+
+
+def check_pics_size(base64_string):
+    max_file_size = 5 * 1024 * 1024 #5MB
+    if not base64_string:
+        return True
+    size_in_bytes = len(base64_string) * 3 / 4 #normally base64 strings r 4/3 times bigger than the original file
+    return size_in_bytes <= max_file_size

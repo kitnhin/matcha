@@ -5,7 +5,7 @@ import secrets
 from extensions import conn, cur, mail
 import os
 import base64
-from utils.auth_utils import check_register_input, check_setup_input, check_login_input
+from utils.auth_utils import check_register_input, check_setup_input, check_login_input, check_pics_size
 from email_validator import validate_email, EmailNotValidError
 
 auth_bp = Blueprint('auth', __name__)

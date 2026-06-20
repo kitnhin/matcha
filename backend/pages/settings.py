@@ -1,7 +1,7 @@
 from extensions import conn, cur
 import json
 import base64
-from utils.auth_utils import check_email, check_name, check_other_fields
+from utils.auth_utils import check_email, check_name, check_other_fields, check_pics_size
 
 
 def check_settings_input(obj, user_id):
@@ -20,6 +20,14 @@ def check_settings_input(obj, user_id):
     if check_other_fields_res["status"] == "fail":
         return {"saveSettingsStatus" : "fail", "errorMessage" : check_other_fields_res["errorMessage"]}
     
+
+    if not check_pics_size(obj.get("profile_pic")):
+        return {"saveSettingsStatus" : "fail", "errorMessage" : "Profile picture size exceeds 5MB limit"}
+    
+    for pic in obj.get("extra_pics"):
+        if not check_pics_size(pic):
+            return {"saveSettingsStatus" : "fail", "errorMessage" : "Extra picture exceeds 5MB limit"}
+
     return {"saveSettingsStatus": "success", "errorMessage": ""}
 
 
