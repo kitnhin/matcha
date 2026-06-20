@@ -9,7 +9,7 @@ from pages.visit_profile import get_profile_data, handle_like_profile, handle_re
 from pages.settings import save_settings
 from pages.research import get_research_data
 from pages.chat import get_chat_data, handle_new_message
-
+from pages.unread_notif import get_unread_notifs, handle_clear_notifs
 
 ws_bp = Blueprint("ws", __name__)
 sock = Sock()
@@ -27,7 +27,9 @@ handlers = {
     "block_profile": handle_block_profile,
     "get_research_data": get_research_data,
     "get_chat_data": get_chat_data,
-    "new_message": handle_new_message
+    "new_message": handle_new_message,
+    "get_unread_notifs" : get_unread_notifs,
+    "clear_unread_notifs": handle_clear_notifs
 }
 
 #main websocket:

@@ -3,10 +3,9 @@ import "../App.css";
 import { Outlet } from "react-router-dom";
 import WS from "../class/ws";
 import NotifComponent from "../components/NotifComponent";
-import { FiLogOut } from "react-icons/fi";
-import { handleLogout } from "../utils/auth";
-import { useNavigate } from "react-router-dom";
+import { FiLogOut, FiMail, FiX } from "react-icons/fi";
 import ConfirmLogoutComponent from "../components/ConfirmLogoutComponent";
+import UnreadNotifsComponent from "../components/UnreadNotifsComponent";
 
 interface MainLayoutProps {
   setIsLoggedIn: React.Dispatch<React.SetStateAction<boolean>>;
@@ -16,7 +15,9 @@ const MainLayout: React.FC<MainLayoutProps> = ({ setIsLoggedIn }) => {
   const [notif, setNotif] = useState<string>("");
   const [showNotif, setShowNotif] = useState<boolean>(false);
   const [showConfirmLogout, setShowConfirmLogout] = useState<boolean>(false);
-  const navigate = useNavigate();
+  const [unreadNotifs, setUnreadNotifs] = useState<string[]>([]);
+
+  const [showUnreadNotifs, setShowUnreadNotifs] = useState<boolean>(false);
 
   useEffect(() => {
     // WS.setup();
@@ -27,6 +28,12 @@ const MainLayout: React.FC<MainLayoutProps> = ({ setIsLoggedIn }) => {
         setShowNotif(true);
       }
     });
+
+    WS.add_callback("unreadNotifs", (data) => {
+      setUnreadNotifs(data.unreadNotifs);
+    });
+
+    WS.send({ type: "get_unread_notifs" });
   }, []);
 
   return (
@@ -35,14 +42,26 @@ const MainLayout: React.FC<MainLayoutProps> = ({ setIsLoggedIn }) => {
       {showNotif && (
         <NotifComponent message={notif} setShowNotif={setShowNotif} />
       )}
-      <button
-        onClick={() => {
-          setShowConfirmLogout(true); 
-        }}
-        className="flex flex-col justify-center items-center fixed bottom-4 right-4 w-10 h-10 p-2 rounded border text-red-500 hover:text-red-700"
-      >
-        <FiLogOut className="w-10 h-10" />
-      </button>
+
+      <div className="fixed bottom-4 right-4 gap-3 flex flex-col items-end">
+
+        {unreadNotifs && unreadNotifs.length > 0 && (
+          <UnreadNotifsComponent
+            unreadNotifs={unreadNotifs}
+            setUnreadNotifs={setUnreadNotifs}
+          />
+        )}
+
+        <button
+          onClick={() => {
+            setShowConfirmLogout(true);
+          }}
+          className="flex flex-col justify-center items-center w-10 h-10 p-2 rounded border text-red-500 hover:text-red-700"
+        >
+          <FiLogOut className="w-10 h-10" />
+        </button>
+      </div>
+
       {showConfirmLogout && (
         <ConfirmLogoutComponent
           setShowConfirmLogout={setShowConfirmLogout}

@@ -77,6 +77,10 @@ def get_profile_data(ws, user_id, obj):
     cur.execute("SELECT * FROM blocks WHERE blocked_id = %s AND blocker_id = %s", (user_id, profile_id))
     is_blocked = cur.fetchone() is not None
 
+    #find user's username to send notif
+    cur.execute("SELECT username FROM users WHERE id = %s", (user_id,))
+    username = cur.fetchone()[0]
+    
     # if its the user himself, can send viewed and likes
     if profile_id == user_id:
         cur.execute("SELECT liker_id FROM likes WHERE liked_id = %s", (user_id,))
@@ -95,8 +99,6 @@ def get_profile_data(ws, user_id, obj):
     elif not is_blocked:
         other_ws = ws_conn.get(profile_id)
         if other_ws:
-            cur.execute("SELECT username FROM users WHERE id = %s", (user_id,))
-            username = cur.fetchone()[0]
             other_ws.send(
                 json.dumps(
                     {
@@ -106,6 +108,9 @@ def get_profile_data(ws, user_id, obj):
                     }
                 )
             )
+        else: #store notif
+            cur.execute("INSERT into unread_notifs (user_id, content) VALUES (%s, %s)", (profile_id, f"{username} viewed your profile"))
+            conn.commit()
 
     ws.send(
         json.dumps(
@@ -208,6 +213,9 @@ def handle_like_profile(ws, user_id, obj):
                 get_user_home_data(other_ws, profile_id, {"type": "getUserHomeData"})
             other_ws.send(json.dumps({"type": "notif", "senderUsername": username, "message": notif_msg}))
             other_ws.send(json.dumps({"type": "updateIsConnected", "isConnected": is_connected}))
+        else: #store notif
+            cur.execute("INSERT into unread_notifs (user_id, content) VALUES (%s, %s)", (profile_id, notif_msg))
+            conn.commit()
 
     conn.commit()
     ws.send(

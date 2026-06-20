@@ -67,6 +67,12 @@ CREATE TABLE IF NOT EXISTS blocks (
     blocker_id INT,
     blocked_id INT,
     UNIQUE (blocker_id, blocked_id)
+);
+
+CREATE TABLE IF NOT EXISTS unread_notifs (
+    id SERIAL PRIMARY KEY,
+    user_id INT,
+    content TEXT
 )
 
 -- Separated tags and pics into own tables cuz imagine ltr need get all users wif certain tag,

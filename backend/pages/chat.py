@@ -176,3 +176,7 @@ def handle_new_message(ws, user_id, obj):
                 }
             )
         )
+    else: #store notif
+        cur.execute("INSERT into unread_notifs (user_id, content) VALUES (%s, %s)", (other_id, f"New message from {sender_username}"))
+        conn.commit()
+    
