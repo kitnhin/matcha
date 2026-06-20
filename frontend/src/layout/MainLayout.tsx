@@ -16,6 +16,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({ setIsLoggedIn }) => {
   const [showNotif, setShowNotif] = useState<boolean>(false);
   const [showConfirmLogout, setShowConfirmLogout] = useState<boolean>(false);
   const [unreadNotifs, setUnreadNotifs] = useState<string[]>([]);
+  const [notifKey, setNotifKey] = useState<number>(0);
 
   const [showUnreadNotifs, setShowUnreadNotifs] = useState<boolean>(false);
 
@@ -26,6 +27,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({ setIsLoggedIn }) => {
       if (WS.openChat !== data.senderUsername) {
         setNotif(data.message);
         setShowNotif(true);
+        setNotifKey((prev) => prev + 1)
       }
     });
 
@@ -40,7 +42,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({ setIsLoggedIn }) => {
     <>
       <Outlet />
       {showNotif && (
-        <NotifComponent message={notif} setShowNotif={setShowNotif} />
+        <NotifComponent key={notifKey} message={notif} setShowNotif={setShowNotif} />
       )}
 
       <div className="fixed bottom-4 right-4 gap-3 flex flex-col items-end">
