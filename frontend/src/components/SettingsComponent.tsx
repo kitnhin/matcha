@@ -31,7 +31,7 @@ const SettingsComponent: React.FC<SettingsProps> = ({}) => {
   const [errorMessage, setErrorMessage] = useState<string>("");
   const [successMessage, setSuccessMessage] = useState<string>("");
 
-  const navigate = useNavigate();
+  const resetStatus = useRef<boolean>(false);
 
   async function handleSubmit(event: React.SubmitEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -39,35 +39,35 @@ const SettingsComponent: React.FC<SettingsProps> = ({}) => {
     // convert profile pic to base64 if it's a File
     let pfpBase64 = profilePic;
     if (profilePic instanceof File) {
-        pfpBase64 = await picToBase64(profilePic);
+      pfpBase64 = await picToBase64(profilePic);
     }
 
     // convert extra pics to base64
     const picsBase64 = [];
     for (const pic of extraPics) {
-        if (pic instanceof File) {
-            picsBase64.push(await picToBase64(pic));
-        } else if (pic) {
-            picsBase64.push(pic);
-        }
+      if (pic instanceof File) {
+        picsBase64.push(await picToBase64(pic));
+      } else if (pic) {
+        picsBase64.push(pic);
+      }
     }
 
     WS.send({
-        type: "save_settings",
-        email,
-        username,
-        first_name: firstName,
-        last_name: lastName,
-        gender,
-        sexual_preference: sexualPreference,
-        age,
-        bio,
-        tags: selectedTags,
-        location: selectedLocation ? selectedLocation.place_name : "",
-        latitude: selectedLocation ? selectedLocation.latitude : 0,
-        longitude: selectedLocation ? selectedLocation.longitude : 0,
-        profile_pic: pfpBase64 || null,
-        extra_pics: picsBase64,
+      type: "save_settings",
+      email,
+      username,
+      first_name: firstName,
+      last_name: lastName,
+      gender,
+      sexual_preference: sexualPreference,
+      age,
+      bio,
+      tags: selectedTags,
+      location: selectedLocation ? selectedLocation.place_name : "",
+      latitude: selectedLocation ? selectedLocation.latitude : 0,
+      longitude: selectedLocation ? selectedLocation.longitude : 0,
+      profile_pic: pfpBase64 || null,
+      extra_pics: picsBase64,
     });
   }
 
@@ -94,40 +94,44 @@ const SettingsComponent: React.FC<SettingsProps> = ({}) => {
         latitude: message.latitude,
         longitude: message.longitude,
       });
+
+      if (resetStatus.current) {
+        setSuccessMessage("Settings reset successfully!");
+        setErrorMessage("");
+      }
     });
 
     WS.add_callback("saveSettingsStatus", (message) => {
-        if(message.status === "success") {
-            setSuccessMessage("Settings saved successfully!");
-            setErrorMessage("");
-        }
-        else {
-            setErrorMessage(message.errorMessage);
-            setSuccessMessage("");
-        }
+      if (message.status === "success") {
+        setSuccessMessage("Settings saved successfully!");
+        setErrorMessage("");
+      } else {
+        setErrorMessage(message.errorMessage);
+        setSuccessMessage("");
+      }
     });
 
     WS.send({ type: "get_user_settings_data" });
   }, []);
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100">
-      <div className="w-full max-w-sm rounded-xl border border-gray-200 bg-white p-6 shadow-lg">
-        <h1 className="mb-6 text-center text-2xl font-bold text-gray-800">
-          Settings
-        </h1>
+    <div className="min-h-screen flex items-center justify-center bg-green-100 pb-16">
+      <div className="w-full max-w-sm rounded-3xl border-2 border-green-600 bg-white p-8 shadow-xl">
+        <div className="mb-6 text-center">
+          <p className="text-4xl">🍵</p>
+          <h1 className="text-3xl font-extrabold text-green-800">Settings</h1>
+        </div>
 
         <form className="flex flex-col gap-4" onSubmit={handleSubmit}>
-
           {/* Email */}
           <div className="flex flex-col gap-1">
-            <label className="text-sm font-medium text-gray-700">Email</label>
+            <label className="text-sm font-bold text-green-800">Email</label>
             <input
               type="text"
               onChange={(e) => {
                 setEmail(e.target.value);
               }}
-              className="rounded-md border border-gray-300 px-3 py-2 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
+              className="rounded-xl border-2 border-green-600 bg-green-50 px-3 py-2 text-green-900 outline-none focus:border-green-500"
               value={email}
             />
           </div>
@@ -176,32 +180,34 @@ const SettingsComponent: React.FC<SettingsProps> = ({}) => {
           />
 
           {errorMessage && (
-            <p className="text-center text-sm text-red-600">{errorMessage}</p>
+            <p className="rounded-lg bg-red-50 px-3 py-2 text-center text-sm text-red-600">
+              {errorMessage}
+            </p>
           )}
 
           {successMessage && (
-            <p className="text-center text-sm text-green-600">
+            <p className="rounded-lg bg-green-50 px-3 py-2 text-center text-sm text-green-600">
               {successMessage}
             </p>
           )}
 
           <button
             type="submit"
-            className="mt-4 rounded bg-blue-500 px-4 py-2 text-white hover:bg-blue-600"
+            className="mt-2 rounded-2xl bg-green-700 px-4 py-2 font-bold text-white hover:bg-green-800"
           >
             Save
           </button>
 
           <button
             type="button"
-            className="rounded-md border border-blue-600 px-4 py-2 font-medium text-blue-600 hover:bg-blue-50"
+            className="rounded-2xl border-2 border-green-600 px-4 py-2 font-bold text-green-800 hover:bg-green-50"
             onClick={() => {
-              navigate("/home");
+              resetStatus.current = true;
+              WS.send({ type: "get_user_settings_data" });
             }}
           >
-            Close
+            Reset changes
           </button>
-
         </form>
       </div>
     </div>

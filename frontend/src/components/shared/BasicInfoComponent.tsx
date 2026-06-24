@@ -26,9 +26,9 @@ const BasicInfoComponent: React.FC<BasicInfoComponentProps> = ({
     <>
       {/* Gender block */}
       <div className="flex flex-col gap-2">
-        <label className="text-xl font-medium text-gray-700">Gender</label>
+        <label className="text-sm font-bold text-green-800">Gender</label>
         <select
-          className="rounded-md border px-2 py-1"
+          className="rounded-xl border-2 border-green-600 bg-green-50 px-3 py-2 text-green-900 outline-none focus:border-green-500"
           onChange={(e) => setGender(e.target.value)}
           value={gender}
         >
@@ -41,11 +41,11 @@ const BasicInfoComponent: React.FC<BasicInfoComponentProps> = ({
 
       {/* Sexual pref block */}
       <div className="flex flex-col gap-2">
-        <label className="text-xl font-medium text-gray-700">
+        <label className="text-sm font-bold text-green-800">
           Sexual Preference
         </label>
         <select
-          className="rounded-md border px-2 py-1"
+          className="rounded-xl border-2 border-green-600 bg-green-50 px-3 py-2 text-green-900 outline-none focus:border-green-500"
           onChange={(e) => setSexualPreference(e.target.value)}
           value={sexualPreference}
         >
@@ -58,10 +58,10 @@ const BasicInfoComponent: React.FC<BasicInfoComponentProps> = ({
 
       {/* Age block */}
       <div className="flex flex-col gap-2">
-        <label className="text-xl font-medium text-gray-700">Age</label>
+        <label className="text-sm font-bold text-green-800">Age</label>
         <input
           type="text"
-          className="rounded-md border px-2 py-1 w-full pr-24"
+          className="rounded-xl border-2 border-green-600 bg-green-50 px-3 py-2 text-green-900 outline-none focus:border-green-500 w-full"
           onChange={(e) => {
             setAge(e.target.value);
           }}
@@ -71,10 +71,10 @@ const BasicInfoComponent: React.FC<BasicInfoComponentProps> = ({
 
       {/* Bio block */}
       <div className="flex flex-col gap-2">
-        <label className="text-xl font-medium text-gray-700">Bio</label>
+        <label className="text-sm font-bold text-green-800">Bio</label>
         <input
           type="text"
-          className="rounded-md border px-2 py-1 w-full pr-24"
+          className="rounded-xl border-2 border-green-600 bg-green-50 px-3 py-2 text-green-900 outline-none focus:border-green-500 w-full"
           onChange={(e) => {
             setBio(e.target.value);
           }}

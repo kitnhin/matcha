@@ -11,44 +11,47 @@ interface NameInputComponentProps {
 }
 
 const NameInputComponent: React.FC<NameInputComponentProps> = ({
-  setUsername, setFirstName, setLastName, username, first_name, last_name
+  setUsername,
+  setFirstName,
+  setLastName,
+  username,
+  first_name,
+  last_name,
 }) => {
-  
-
   return (
     <>
       <div className="flex flex-col gap-1">
-        <label className="text-sm font-medium text-gray-700">Username</label>
+        <label className="text-sm font-bold text-green-800">Username</label>
         <input
           type="text"
           onChange={(e) => {
             setUsername(e.target.value);
           }}
-          className="rounded-md border border-gray-300 px-3 py-2 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
+          className="rounded-xl border-2 border-green-600 bg-green-50 px-3 py-2 text-green-900 outline-none focus:border-green-500"
           value={username}
         />
       </div>
 
       <div className="flex flex-col gap-1">
-        <label className="text-sm font-medium text-gray-700">First name</label>
+        <label className="text-sm font-bold text-green-800">First name</label>
         <input
           type="text"
           onChange={(e) => {
             setFirstName(e.target.value);
           }}
-          className="rounded-md border border-gray-300 px-3 py-2 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
+          className="rounded-xl border-2 border-green-600 bg-green-50 px-3 py-2 text-green-900 outline-none focus:border-green-500"
           value={first_name}
         />
       </div>
 
       <div className="flex flex-col gap-1">
-        <label className="text-sm font-medium text-gray-700">Last name</label>
+        <label className="text-sm font-bold text-green-800">Last name</label>
         <input
           type="text"
           onChange={(e) => {
             setLastName(e.target.value);
           }}
-          className="rounded-md border border-gray-300 px-3 py-2 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
+          className="rounded-xl border-2 border-green-600 bg-green-50 px-3 py-2 text-green-900 outline-none focus:border-green-500"
           value={last_name}
         />
       </div>

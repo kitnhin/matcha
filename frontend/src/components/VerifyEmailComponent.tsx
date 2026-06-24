@@ -17,8 +17,7 @@ const VerifyEmailComponent: React.FC<VerifyEmailProps> = ({}) => {
 
   const hasFetched = useRef(false); // to prevent useEffect from running multiple times in dev mode (from Claude)
   useEffect(() => {
-    if (hasFetched.current)
-        return;
+    if (hasFetched.current) return;
     hasFetched.current = true;
 
     fetch(`${BACKEND_URL}/auth/verify?token=${token}`)
@@ -36,30 +35,36 @@ const VerifyEmailComponent: React.FC<VerifyEmailProps> = ({}) => {
   return (
     <>
       {!verifySuccess && !verifyFail && (
-        <h1 className="text-5xl"> Verifying your email...</h1>
+        <h1 className="text-5xl text-green-800 font-bold">
+          {" "}
+          Verifying your email...
+        </h1>
       )}
       {verifySuccess && (
-        <div className="min-h-screen flex flex-col items-center justify-center">
-          <h1 className="text-3xl">
-            Your email has been verified, you can now login
-          </h1>
-          <button
-            className="text-lg mt-4 rounded bg-blue-500 px-4 py-2 text-white hover:bg-blue-600"
-            onClick={() => {
-              navigate("/login");
-            }}
-          >
-            Login
-          </button>
+        <div className="min-h-screen flex flex-col items-center justify-center bg-green-100">
+          <div className="border-2 border-green-600 bg-white p-6 flex flex-col gap-7 rounded-xl">
+            <h1 className="text-3xl text-green-800 text-center">
+              Your email has been verified, you can now login
+            </h1>
+            <button
+              className="self-center text-lg rounded-2xl bg-green-700 px-4 py-2 font-bold text-white hover:bg-green-800"
+              onClick={() => {
+                navigate("/login");
+              }}
+            >
+              Login
+            </button>
+          </div>
         </div>
       )}
       {verifyFail && (
-        <div className="flex flex-col items-center">
-          <h1 className="text-5xl">
-            {" "}
-            Email verification failed. Please register again
+        <div className="min-h-screen flex flex-col items-center justify-center bg-green-100">
+        <div className="border-2 border-green-600 bg-white p-6 flex flex-col gap-7 rounded-xl">
+          <h1 className="text-3xl text-green-800">
+            Registration failed, please register again
           </h1>
           <button
+            className="self-center text-lg rounded-2xl bg-green-700 px-4 py-2 font-bold text-white hover:bg-green-800"
             onClick={() => {
               navigate("/register");
             }}
@@ -67,6 +72,7 @@ const VerifyEmailComponent: React.FC<VerifyEmailProps> = ({}) => {
             Register
           </button>
         </div>
+      </div>
       )}
     </>
   );

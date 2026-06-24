@@ -6,6 +6,7 @@ import WS from "../class/ws";
 import defaultPfp from "../assets/default_pfp.jpg";
 import VisitProfileComponent from "./VisitProfileComponent";
 import ChatComponent from "./ChatComponent";
+import { FiGlobe, FiSearch, FiSettings } from "react-icons/fi";
 
 interface HomeComponentProps {
   setIsLoggedIn: React.Dispatch<React.SetStateAction<boolean>>;
@@ -58,9 +59,9 @@ const HomeComponent: React.FC<HomeComponentProps> = ({ setIsLoggedIn }) => {
   }, []);
 
   return (
-    <div className="h-screen flex flex-col">
-      {/* top header area */}
-      <div className="flex items-center justify-between px-6 py-4">
+    <div className="h-screen flex flex-col bg-green-100">
+      {/* Top header */}
+      <div className="flex items-center justify-between px-6 py-3 bg-white border-b-2 border-green-600">
         <div
           className="flex items-center gap-4"
           onClick={() => setShowProfile(true)}
@@ -70,93 +71,79 @@ const HomeComponent: React.FC<HomeComponentProps> = ({ setIsLoggedIn }) => {
               profilePic ? `data:image/jpeg;base64,${profilePic}` : defaultPfp
             }
             alt="profile"
-            className="w-12 h-12 rounded-full object-cover"
+            className="w-10 h-10 rounded-full object-cover border-2 border-green-600"
           />
-          <span className="text-lg font-semibold">{username}</span>
-          <div className="flex items-center gap-1 text-orange-500">
-            <span>🔥</span>
-            <span>{fame}</span>
-          </div>
-        </div>
-        <div className="flex gap-2">
-          <button
-            onClick={() => navigate("/settings")}
-            className="px-4 py-2 text-sm bg-red-500 text-white rounded hover:bg-red-600"
-          >
-            Settings
-          </button>
+          <div className="text-lg font-bold text-green-800">{username}</div>
+          <p className="text-sm text-orange-500 font-bold">🔥 {fame}</p>
         </div>
       </div>
 
-      <hr className="border-gray-300" />
-
+      {/* Main content */}
       <div className="flex flex-1 overflow-hidden">
-        {/* Main area */}
-        <div className="flex-1 flex items-center justify-center">
-          <div className="flex flex-col items-center">
-            <h1 className="text-5xl">Welcome to the home</h1>
-            <div className="flex flex-col items-center gap-3 mt-4">
-              <button
-                onClick={() => navigate("/browse")}
-                className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-              >
-                Browse profiles
-              </button>
-              <button
-                onClick={() => navigate("/research")}
-                className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-              >
-                Research profiles
-              </button>
-            </div>
+        {/* Left chat list */}
+        <div className="w-80 border-r-2 border-green-600 bg-white flex flex-col">
+          <p className="text-lg font-bold text-green-800 p-4">Chats</p>
+          <div className="flex flex-col overflow-y-auto border-t border-green-600">
+            {convos.length === 0 ? (
+              <p className="text-green-600 p-4">No chats yet</p>
+            ) : (
+              convos.map((convo, i) => (
+                <div
+                  key={i}
+                  className={`flex items-center gap-3 p-4 border-b border-green-600 hover:bg-green-50 ${
+                    chatOtherUsername === convo.otherUsername && showChat
+                      ? "bg-green-50"
+                      : ""
+                  }`}
+                  onClick={() => {
+                    setShowChat(true);
+                    setChatOtherUsername(convo.otherUsername);
+                  }}
+                >
+                  <img
+                    src={
+                      convo.otherPfp
+                        ? `data:image/jpeg;base64,${convo.otherPfp}`
+                        : defaultPfp
+                    }
+                    alt="profile"
+                    className="w-10 h-10 rounded-full object-cover"
+                  />
+                  <div>
+                    <p className="font-bold text-green-800">
+                      {convo.otherUsername}
+                    </p>
+                    <p className="text-sm text-green-600">
+                      {convo.lastMessage
+                        ? `${convo.lastSender}: ${convo.lastMessage}`
+                        : "No messages yet"}
+                    </p>
+                  </div>
+                </div>
+              ))
+            )}
           </div>
         </div>
 
-        {/* Chats sect */}
-        <div className="w-72 border-l border-gray-300 flex flex-col">
-          <p className="text-lg font-bold p-3">Chats</p>
-          <div className="flex overflow-y-auto border-t">
-            {convos.map((convo, i) => (
-              <div
-                key={i}
-                className="flex items-center gap-3 p-4 border-b w-full border-gray-400"
-                onClick={() => {
-                  setShowChat(true);
-                  setChatOtherUsername(convo.otherUsername);
-                }}
-              >
-                <img
-                  src={
-                    convo.otherPfp
-                      ? `data:image/jpeg;base64,${convo.otherPfp}`
-                      : defaultPfp
-                  }
-                  alt="profile"
-                  className="w-10 h-10 rounded-full object-cover"
-                />
-                <div>
-                  <p className="font-semibold">{convo.otherUsername}</p>
-                  <p className="text-sm text-gray-500">
-                    {convo.lastMessage
-                      ? `${convo.lastSender}: ${convo.lastMessage}`
-                      : "No messages yet"}
-                  </p>
-                </div>
-              </div>
-            ))}
-          </div>
+        {/* selected chat area */}
+        <div className="flex-1 flex flex-col bg-white">
+          {showChat ? (
+            <ChatComponent
+              setShowChat={setShowChat}
+              otherUsername={chatOtherUsername}
+            />
+          ) : (
+            <div className="flex-1 flex items-center justify-center">
+              <p className="text-green-600 text-lg">
+                Select a chat to start messaging
+              </p>
+            </div>
+          )}
         </div>
       </div>
 
       {showProfile && (
         <VisitProfileComponent setShowProfile={setShowProfile} profileId={-1} />
-      )}
-
-      {showChat && (
-        <ChatComponent
-          setShowChat={setShowChat}
-          otherUsername={chatOtherUsername}
-        />
       )}
     </div>
   );

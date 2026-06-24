@@ -15,9 +15,11 @@ const RegisterComponent: React.FC<RegisterComponentProps> = ({}) => {
   const [showPassword2, setShowPassword2] = useState<boolean>(false);
   const [registerError, setRegisterError] = useState<string>("");
   const [registerDone, setRegisterDone] = useState<boolean>(false);
+  const [registerLoading, setRegisterLoading] = useState<boolean>(false);
 
   function handleSubmit(event: React.SubmitEvent<HTMLFormElement>) {
     event.preventDefault();
+    setRegisterLoading(true);
 
     const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
@@ -49,25 +51,26 @@ const RegisterComponent: React.FC<RegisterComponentProps> = ({}) => {
             data.errorMessage || "An error occurred during registration."
           );
         }
+        setRegisterLoading(false);
       });
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100">
-      <div className="w-full max-w-sm rounded-xl border border-gray-200 bg-white p-6 shadow-lg">
-        <h1 className="mb-6 text-center text-2xl font-bold text-gray-800">
-          Register
-        </h1>
+    <div className="min-h-screen flex items-center justify-center bg-green-100">
+      <div className="w-full max-w-sm rounded-3xl border-2 border-green-600 bg-white p-8 shadow-xl">
+        <div className="mb-6 text-center">
+          <h1 className="text-2xl font-bold text-green-800">Register</h1>
+        </div>
 
         <form className="flex flex-col gap-4" onSubmit={handleSubmit}>
           <div className="flex flex-col gap-1">
-            <label className="text-sm font-medium text-gray-700">Email</label>
+            <label className="text-sm font-bold text-green-800">Email</label>
             <input
               type="text"
               onChange={(e) => {
                 setEmail(e.target.value);
               }}
-              className="rounded-md border border-gray-300 px-3 py-2 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
+              className="rounded-xl border-2 border-green-600 bg-green-50 px-3 py-2 text-green-900 outline-none focus:border-green-500"
             />
           </div>
 
@@ -82,7 +85,7 @@ const RegisterComponent: React.FC<RegisterComponentProps> = ({}) => {
 
           <div className="flex flex-col gap-1">
             <div className="flex items-center justify-between">
-              <label className="text-sm font-medium text-gray-700">
+              <label className="text-sm font-bold text-green-800">
                 Password
               </label>
               <button
@@ -90,7 +93,7 @@ const RegisterComponent: React.FC<RegisterComponentProps> = ({}) => {
                 onClick={() => {
                   setShowPassword1(!showPassword1);
                 }}
-                className="text-xs underline"
+                className="text-xs font-bold text-green-500 underline underline-offset-2"
               >
                 {showPassword1 ? "Hide" : "Show"}
               </button>
@@ -100,12 +103,13 @@ const RegisterComponent: React.FC<RegisterComponentProps> = ({}) => {
               onChange={(e) => {
                 setPassword1(e.target.value);
               }}
-              className="rounded-md border border-gray-300 px-3 py-2 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
+              className="rounded-xl border-2 border-green-600 bg-green-50 px-3 py-2 text-green-900 outline-none focus:border-green-500"
             />
           </div>
+
           <div className="flex flex-col gap-1">
             <div className="flex items-center justify-between">
-              <label className="text-sm font-medium text-gray-700">
+              <label className="text-sm font-bold text-green-800">
                 Confirm Password
               </label>
               <button
@@ -113,7 +117,7 @@ const RegisterComponent: React.FC<RegisterComponentProps> = ({}) => {
                 onClick={() => {
                   setShowPassword2(!showPassword2);
                 }}
-                className="text-xs underline"
+                className="text-xs font-bold text-green-500 underline underline-offset-2"
               >
                 {showPassword2 ? "Hide" : "Show"}
               </button>
@@ -123,26 +127,39 @@ const RegisterComponent: React.FC<RegisterComponentProps> = ({}) => {
               onChange={(e) => {
                 setPassword2(e.target.value);
               }}
-              className="rounded-md border border-gray-300 px-3 py-2 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
+              className="rounded-xl border-2 border-green-600 bg-green-50 px-3 py-2 text-green-900 outline-none focus:border-green-500"
             />
           </div>
+
           {registerError !== "" && (
-            <p className="text-center text-sm text-red-600">{registerError}</p>
+            <p className="rounded-lg bg-red-50 px-3 py-2 text-center text-sm text-red-600">
+              {registerError}
+            </p>
           )}
+
           <button
             type="submit"
-            className="mt-1 rounded-md bg-blue-600 px-4 py-2 font-medium text-white hover:bg-blue-700"
+            disabled={registerLoading}
+            className="mt-2 rounded-2xl bg-green-700 px-4 py-2 font-bold text-white hover:bg-green-800 flex flex-col items-center"
           >
-            Submit
+            {registerLoading ? (
+              <div className="animate-spin border-2  border-white border-t-transparent rounded-full w-6 h-6"></div>
+            ) : (
+              "Register"
+            )}
           </button>
         </form>
 
         {registerDone && (
-          <div className="fixed inset-0 flex items-center justify-center bg-white">
-            <p className="text-green-600 text-center text-4xl">
-              Registration successful. Please click the link in the confirmation
-              email to activate your account.
-            </p>
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-green-100">
+            <div className="max-w-sm rounded-3xl border-2 border-green-600 bg-white p-8 flex flex-col justify-center items-center gap-4">
+              <h2 className="text-2xl font-semibold text-green-800 text-center">
+                Registration successful!
+              </h2>
+              <p className="text-md text-green-800 text-center">
+                Please click the link in the email to activate your account.
+              </p>
+            </div>
           </div>
         )}
       </div>

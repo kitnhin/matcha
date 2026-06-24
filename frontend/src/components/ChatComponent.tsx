@@ -64,96 +64,89 @@ const ChatComponent: React.FC<ChatComponentProps> = ({
   }
 
   return (
-    // Blur bg
-    <div
-      className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center"
-      onClick={() => {
-        setShowChat(false);
-        WS.openChat = null;
-      }}
-    >
-      {/* Main popup */}
-      <div
-        className="bg-white rounded-lg shadow-lg w-96 h-150 flex flex-col"
-        onClick={(e) => e.stopPropagation()} //so when i click the chat parts it doesnt close
-      >
-        {/* Header */}
-        <div className="flex items-center gap-3 p-4 border-b">
-          <img
-            src={otherPfp ? `data:image/jpeg;base64,${otherPfp}` : defaultPfp}
-            alt="profile"
-            className="w-10 h-10 rounded-full object-cover"
-          />
-          <p className="text-lg font-semibold flex-1">{otherUsername}</p>
-          <button
-            className="text-gray-500 hover:text-gray-700"
-            onClick={() => {
-              setShowChat(false);
-              WS.openChat = null;
+    <div className="flex flex-col h-full bg-white">
+      {/* Header */}
+      <div className="flex items-center gap-3 p-4 border-b border-green-600">
+        <img
+          src={otherPfp ? `data:image/jpeg;base64,${otherPfp}` : defaultPfp}
+          alt="profile"
+          className="w-10 h-10 rounded-full object-cover"
+        />
+        <p className="text-lg font-bold text-green-800">{otherUsername}</p>
+        <button
+          className="text-green-600 hover:text-green-800 ml-auto"
+          onClick={() => {
+            setShowChat(false);
+            WS.openChat = null;
+          }}
+        >
+          ✕
+        </button>
+      </div>
+
+      {/* Messages */}
+      <div className="flex flex-col w-full flex-1 overflow-y-auto p-4 gap-3">
+        {messages && messages.length > 0 ? (
+          messages.map((msg, i) =>
+            msg.senderUsername === "You" ? (
+              <div key={i} className="mr-auto flex gap-2">
+                <img
+                  src={
+                    userPfp ? `data:image/jpeg;base64,${userPfp}` : defaultPfp
+                  }
+                  alt="profile"
+                  className="w-10 h-10 rounded-full object-cover"
+                />
+                <p className="text-white bg-green-700 rounded-xl p-2">
+                  {msg.content}
+                </p>
+              </div>
+            ) : (
+              <div key={i} className="ml-auto flex gap-2">
+                <p className="text-green-900 border-2 border-green-600 rounded-xl p-2">
+                  {msg.content}
+                </p>
+                <img
+                  src={
+                    otherPfp
+                      ? `data:image/jpeg;base64,${otherPfp}`
+                      : defaultPfp
+                  }
+                  alt="profile"
+                  className="w-10 h-10 rounded-full object-cover"
+                />
+              </div>
+            )
+          )
+        ) : (
+          <p className="text-green-600">No messages yet</p>
+        )}
+        <div ref={messagesEndRef} />
+      </div>
+
+      {/* Input */}
+      {errorMsg === "" ? (
+        <div className="flex gap-2 p-3 border-t border-green-200">
+          <input
+            className="rounded-xl border-2 border-green-600 bg-green-50 w-full p-2 text-green-900 outline-none focus:border-green-500"
+            value={inputContent}
+            onChange={(e) => setInputContent(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") sendMessage();
             }}
+          />
+          <button
+            className="text-green-700 hover:text-green-900"
+            onClick={() => sendMessage()}
           >
-            ✕
+            <FiSend />
           </button>
         </div>
-
-        {/* Messages */}
-        <div className="flex flex-col w-full h-full overflow-y-auto p-4 gap-3">
-          {messages && messages.length > 0 ? (
-            messages.map((msg, i) =>
-              msg.senderUsername === "You" ? (
-                <div key={i} className="mr-auto flex gap-2">
-                  <img
-                    src={
-                      userPfp ? `data:image/jpeg;base64,${userPfp}` : defaultPfp
-                    }
-                    alt="profile"
-                    className="w-10 h-10 rounded-full object-cover"
-                  />
-                  <p className="text-white bg-blue-500 rounded p-2">
-                    {msg.content}
-                  </p>
-                </div>
-              ) : (
-                <div key={i} className="ml-auto flex gap-2">
-                  <p className="text-black border rounded p-2">{msg.content}</p>
-                  <img
-                    src={
-                      otherPfp
-                        ? `data:image/jpeg;base64,${otherPfp}`
-                        : defaultPfp
-                    }
-                    alt="profile"
-                    className="w-10 h-10 rounded-full object-cover"
-                  />
-                </div>
-              )
-            )
-          ) : (
-            <p>No messages yet</p>
-          )}
-          <div ref={messagesEndRef} />
-        </div>
-
-        {/* Input */}
-        {errorMsg === "" ? (
-          <div className="flex gap-2 p-3">
-            <input
-              className="border w-full p-2 rounded"
-              value={inputContent}
-              onChange={(e) => setInputContent(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === "Enter") sendMessage();
-              }}
-            ></input>
-            <button onClick={() => sendMessage()}>
-              <FiSend />
-            </button>
-          </div>
-        ) : (
-          <p className="text-red-500">{errorMsg}</p>
-        )}
-      </div>
+      ) : (
+        <p className="text-red-500 p-3">{errorMsg}</p>
+      )}
     </div>
   );
-};
+}
+
 export default ChatComponent;

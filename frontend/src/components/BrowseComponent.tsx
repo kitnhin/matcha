@@ -134,15 +134,9 @@ const BrowseComponent: React.FC<BrowseComponentProps> = ({}) => {
   }
 
   return (
-    <div className="min-w-screen h-screen flex flex-col items-center overflow-hidden">
-      <div className="flex min-w-screen border items-center justify-center p-4">
-        <button
-          onClick={() => navigate("/home")}
-          className="absolute left-4 text-sm"
-        >
-          ← Back
-        </button>
-        <h1 className="text-2xl font-bold">Browse</h1>
+    <div className="min-w-screen h-screen flex flex-col items-center overflow-hidden bg-green-100 pb-16">
+      <div className="flex min-w-screen border-b-2 border-green-600 bg-white items-center justify-center p-4">
+        <h1 className="text-2xl font-extrabold text-green-800">Browse</h1>
 
         {/* Sorting stuff */}
         <div className="absolute right-5 gap-4 flex">
@@ -150,7 +144,7 @@ const BrowseComponent: React.FC<BrowseComponentProps> = ({}) => {
             onClick={() => {
               setShowSort(true);
             }}
-            className="right-4 text-xl"
+            className="right-4 text-sm font-bold text-green-700"
           >
             Sort: {sortBy || "None"}
           </button>
@@ -161,7 +155,7 @@ const BrowseComponent: React.FC<BrowseComponentProps> = ({}) => {
                 className="fixed inset-0 z-10"
                 onClick={() => setShowSort(false)}
               />
-              <div className="absolute flex flex-col right-0 mt-10 rounded border z-20">
+              <div className="absolute flex flex-col right-0 mt-10 rounded-xl border-2 border-green-600 bg-white z-20">
                 {["Default", "Age", "Fame", "Common Tags", "Location"].map(
                   (option) => (
                     <button
@@ -169,7 +163,7 @@ const BrowseComponent: React.FC<BrowseComponentProps> = ({}) => {
                       onClick={() => {
                         handleSortChange(option);
                       }}
-                      className="text-left px-4 py-2 text-sm"
+                      className="text-left px-4 py-2 text-sm font-bold text-green-800 border-b border-green-200 hover:bg-green-50"
                     >
                       {option}
                     </button>
@@ -177,7 +171,7 @@ const BrowseComponent: React.FC<BrowseComponentProps> = ({}) => {
                 )}
                 <button
                   onClick={() => handleOrderChange()}
-                  className="text-left px-4 py-2 text-sm"
+                  className="text-left px-4 py-2 text-sm font-bold text-green-800 hover:bg-green-50"
                 >
                   Order: {order === "desc" ? "Descending" : "Ascending"}
                 </button>
@@ -190,7 +184,7 @@ const BrowseComponent: React.FC<BrowseComponentProps> = ({}) => {
             onClick={() => {
               setShowFilter(true);
             }}
-            className="right-4 text-xl"
+            className="right-4 text-sm font-bold text-green-700"
           >
             Filter
           </button>
@@ -201,75 +195,75 @@ const BrowseComponent: React.FC<BrowseComponentProps> = ({}) => {
                 className="fixed inset-0 z-10"
                 onClick={() => setShowFilter(false)}
               />
-              <div className="absolute flex flex-col items-center right-0 mt-10 rounded border z-20 fex">
-                <div className="flex gap-2 p-4">
-                  <label>Age: </label>
+              <div className="absolute flex flex-col items-center right-0 mt-10 rounded-xl border-2 border-green-600 bg-white z-20 p-2">
+                <div className="flex gap-2 p-2 items-center">
+                  <label className="text-sm font-bold text-green-800">Age:</label>
                   <input
                     type="text"
                     value={minAge}
                     onChange={(e) => {
                       setMinAge(e.target.value);
                     }}
-                    className="w-12 rounded border"
+                    className="w-12 rounded-xl border-2 border-green-600 bg-green-50 px-2 py-1 text-green-900 text-sm"
                   />
-                  <p> to </p>
+                  <p className="text-sm text-green-800">to</p>
                   <input
                     type="text"
                     value={maxAge}
                     onChange={(e) => {
                       setMaxAge(e.target.value);
                     }}
-                    className="w-12 rounded border"
+                    className="w-12 rounded-xl border-2 border-green-600 bg-green-50 px-2 py-1 text-green-900 text-sm"
                   />
                 </div>
-                <div className="flex gap-3 p-2">
-                  <label>Fame: </label>
+                <div className="flex gap-2 p-2 items-center">
+                  <label className="text-sm font-bold text-green-800">Fame:</label>
                   <input
                     value={minFame}
                     type="text"
                     onChange={(e) => {
                       setMinFame(e.target.value);
                     }}
-                    className="w-12 rounded border"
+                    className="w-12 rounded-xl border-2 border-green-600 bg-green-50 px-2 py-1 text-green-900 text-sm"
                   />
-                  <p> to </p>
+                  <p className="text-sm text-green-800">to</p>
                   <input
                     type="text"
                     value={maxFame}
                     onChange={(e) => {
                       setMaxFame(e.target.value);
                     }}
-                    className="w-12 rounded border"
+                    className="w-12 rounded-xl border-2 border-green-600 bg-green-50 px-2 py-1 text-green-900 text-sm"
                   />
                 </div>
 
-                <div className="flex gap-3 p-2">
-                  <label>Min Common Tags: </label>
+                <div className="flex gap-2 p-2 items-center">
+                  <label className="text-sm font-bold text-green-800">Min Common Tags:</label>
                   <input
                     type="text"
                     value={minCommonTags}
                     onChange={(e) => {
                       setMinCommonTags(e.target.value);
                     }}
-                    className="w-12 rounded border"
+                    className="w-12 rounded-xl border-2 border-green-600 bg-green-50 px-2 py-1 text-green-900 text-sm"
                   />
                 </div>
 
-                <div className="flex gap-3 p-2">
-                  <label>Max distance: </label>
+                <div className="flex gap-2 p-2 items-center">
+                  <label className="text-sm font-bold text-green-800">Max distance:</label>
                   <input
                     type="text"
                     value={maxDistance}
                     onChange={(e) => {
                       setMaxDistance(e.target.value);
                     }}
-                    className="w-12 rounded border"
+                    className="w-12 rounded-xl border-2 border-green-600 bg-green-50 px-2 py-1 text-green-900 text-sm"
                   />
                 </div>
 
                 <button
                   onClick={handleFilterSubmit}
-                  className="rounded border text-left px-2 my-2 py-2 text-sm"
+                  className="rounded-xl bg-green-700 text-white px-4 py-2 text-sm font-bold hover:bg-green-800 my-2"
                 >
                   Submit
                 </button>
@@ -307,7 +301,7 @@ const BrowseComponent: React.FC<BrowseComponentProps> = ({}) => {
         </div>
       </div>
 
-      {loading && <p className="text-sm">Loading...</p>}
+      {loading && <p className="text-sm font-bold text-green-700">Loading...</p>}
 
       {showProfile && (
         <VisitProfileComponent
@@ -317,6 +311,6 @@ const BrowseComponent: React.FC<BrowseComponentProps> = ({}) => {
       )}
     </div>
   );
-};
+}
 
 export default BrowseComponent;
