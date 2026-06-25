@@ -1,6 +1,7 @@
 import { useState } from "react";
 import "../App.css";
 import { useNavigate } from "react-router-dom";
+import { FiX } from "react-icons/fi";
 
 interface LoginComponentProps {
   setIsLoggedIn: React.Dispatch<React.SetStateAction<boolean>>;
@@ -19,6 +20,8 @@ const LoginComponent: React.FC<LoginComponentProps> = ({ setIsLoggedIn }) => {
   const [forgotPassword, setForgotPassword] = useState<boolean>(false);
   const [forgotPasswordDone, setForgotPasswordDone] = useState<boolean>(false);
   const [forgotPasswordError, setForgotPasswordError] = useState<string>("");
+  const [forgotPasswordLoading, setForgotPasswordLoading] =
+    useState<boolean>(false);
 
   const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
@@ -58,6 +61,7 @@ const LoginComponent: React.FC<LoginComponentProps> = ({ setIsLoggedIn }) => {
 
   const handleForgotPassword = (event: React.SubmitEvent<HTMLFormElement>) => {
     event.preventDefault();
+    setForgotPasswordLoading(true);
 
     fetch(`${BACKEND_URL}/auth/forgot-password`, {
       method: "POST",
@@ -73,37 +77,38 @@ const LoginComponent: React.FC<LoginComponentProps> = ({ setIsLoggedIn }) => {
       .then((data: { forgotPasswordStatus: string; errorMessage: string }) => {
         if (data.forgotPasswordStatus === "success") {
           setForgotPasswordDone(true);
+          setEmail("");
         } else {
           setForgotPasswordError(data.errorMessage);
           console.log("Forgot password error:", data.errorMessage);
         }
+        setForgotPasswordLoading(false);
       });
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100">
-      <div className="w-full max-w-sm rounded-xl border border-gray-200 bg-white p-6 shadow-lg">
-        <h1 className="mb-6 text-center text-2xl font-bold text-gray-800">
-          Login
-        </h1>
+    <div className="min-h-screen flex items-center justify-center bg-green-100">
+      <div className="w-full max-w-sm rounded-3xl border-2 border-green-600 bg-white p-8 shadow-xl">
+        <div className="mb-6 text-center">
+          <p className="text-4xl">🍵</p>
+          <h1 className="text-3xl font-extrabold text-green-800">matcha</h1>
+        </div>
 
         <form className="flex flex-col gap-4" onSubmit={handleSubmit}>
           <div className="flex flex-col gap-1">
-            <label className="text-sm font-medium text-gray-700">
-              Username
-            </label>
+            <label className="text-sm font-bold text-green-800">Username</label>
             <input
               type="text"
               onChange={(e) => {
                 setLoginUsername(e.target.value);
               }}
-              className="rounded-md border border-gray-300 px-3 py-2 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
+              className="rounded-xl border-2 border-green-600 bg-green-50 px-3 py-2 text-green-900 outline-none focus:border-green-500"
             />
           </div>
 
           <div className="flex flex-col gap-1">
             <div className="flex items-center justify-between">
-              <label className="text-sm font-medium text-gray-700">
+              <label className="text-sm font-bold text-green-800">
                 Password
               </label>
               <button
@@ -111,7 +116,7 @@ const LoginComponent: React.FC<LoginComponentProps> = ({ setIsLoggedIn }) => {
                 onClick={() => {
                   setShowPassword(!showPassword);
                 }}
-                className="text-xs underline"
+                className="text-xs font-bold text-green-500 underline underline-offset-2"
               >
                 {showPassword ? "Hide" : "Show"}
               </button>
@@ -122,70 +127,99 @@ const LoginComponent: React.FC<LoginComponentProps> = ({ setIsLoggedIn }) => {
               onChange={(e) => {
                 setLoginPassword(e.target.value);
               }}
-              className="rounded-md border border-gray-300 px-3 py-2 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
+              className="rounded-xl border-2 border-green-600 bg-green-50 px-3 py-2 text-green-900 outline-none focus:border-green-500"
             />
           </div>
 
           {loginError && (
-            <p className="text-center text-sm text-red-600">{errorMessage}</p>
+            <p className="rounded-lg bg-red-50 px-3 py-2 text-center text-sm text-red-600">
+              {errorMessage}
+            </p>
           )}
 
           <button
             type="submit"
-            className="mt-1 rounded-md bg-blue-600 px-4 py-2 font-medium text-white hover:bg-blue-700"
+            className="mt-2 rounded-2xl bg-green-700 px-4 py-2 font-bold text-white hover:bg-green-800"
           >
-            Submit
+            Login
           </button>
 
           <button
             type="button"
-            className="rounded-md border border-blue-600 px-4 py-2 font-medium text-blue-600 hover:bg-blue-50"
+            className="rounded-2xl border-2 bg-white border-green-600 px-4 py-2 font-bold text-green-800 hover:bg-green-50"
             onClick={() => {
               navigate("/register");
             }}
           >
-            Register an account
+            Create an account
           </button>
 
           <button
             type="button"
-            className="rounded-md border border-blue-600 px-4 py-2 font-medium text-blue-600 hover:bg-blue-50"
+            className="self-center text-sm font-semibold text-green-600 underline underline-offset-2 hover:text-green-800"
             onClick={() => {
               setForgotPassword(true);
+              setForgotPasswordError("");
             }}
           >
-            Forgotten password
+            Forgot your password?
           </button>
         </form>
 
-        {/* Forgot password shit */}
+        {/* Forgot password page */}
         {forgotPassword && !forgotPasswordDone && (
-          <div className="fixed inset-0 min-h-screen flex items-center justify-center bg-gray-100">
-            <div className="w-full max-w-sm rounded-xl border border-gray-200 bg-white p-6 shadow-lg">
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-green-100">
+            <div className="relative w-full max-w-sm rounded-3xl border-2 border-green-600 bg-white p-8">
+              <button
+                type="button"
+                onClick={() => {
+                  setForgotPassword(false);
+                  setForgotPasswordError("");
+                  setLoginError(false);
+                }}
+                className="absolute top-3 right-4 text-2xl font-bold text-green-600 hover:text-green-800"
+              >
+                <FiX />
+              </button>
+
+              <div className="mb-5 text-center">
+                <p className="text-3xl">🍵</p>
+                <h2 className="text-xl font-extrabold text-green-800">
+                  Forgot password
+                </h2>
+              </div>
+
               <form
-                className="flex flex-col gap-4"
+                className="flex flex-col gap-3"
                 onSubmit={handleForgotPassword}
               >
-                <label className="text-sm font-medium text-gray-700">
-                  Please enter your email:
+                <label className="text-sm font-bold text-green-800">
+                  Email
                 </label>
                 <input
-                  type="text"
+                  type="email"
                   onChange={(e) => {
                     setEmail(e.target.value);
                   }}
-                  className="rounded-md border border-gray-300 px-3 py-2 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
+                  className="rounded-xl border-2 border-green-600 bg-green-50 px-3 py-2 text-green-900 outline-none focus:border-green-500"
                 />
 
                 {forgotPasswordError && (
-                  <p className="text-center text-sm text-red-600">{forgotPasswordError}</p>
+                  <p className="rounded-lg bg-red-50 px-3 py-2 text-center text-sm text-red-600">
+                    {forgotPasswordError}
+                  </p>
                 )}
 
                 <button
                   type="submit"
-                  className="mt-1 rounded-md bg-blue-600 px-4 py-2 font-medium text-white hover:bg-blue-700"
+                  disabled={forgotPasswordLoading} // takes in a boolean, so when loading button is disabled
+                  className="mt-2 rounded-2xl bg-green-700 px-4 py-2 font-bold text-white flex flex-col items-center hover:bg-green-800"
                 >
-                  Submit
+                  {forgotPasswordLoading ? (
+                    <div className="animate-spin border-2  border-white border-t-transparent rounded-full w-6 h-6"></div>
+                  ) : (
+                    "Send reset link"
+                  )}
                 </button>
               </form>
             </div>
@@ -193,11 +227,22 @@ const LoginComponent: React.FC<LoginComponentProps> = ({ setIsLoggedIn }) => {
         )}
 
         {forgotPasswordDone && (
-          <div className="fixed inset-0 flex items-center justify-center bg-white">
-            <p className="text-green-600 text-center text-4xl">
-              Please check the verification link your email to reset your
-              password.
-            </p>
+          <div className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-green-100">
+            <div className="max-w-sm rounded-3xl border-2 border-green-600 bg-white p-8 flex flex-col justify-center items-center">
+              <h2 className="mt-3 text-2xl font-semibold text-green-800 text-center">
+                Reset Link Sent. Please check your email
+              </h2>
+              <button
+                type="button"
+                onClick={() => {
+                  setForgotPassword(false);
+                  setForgotPasswordDone(false);
+                }}
+                className="mt-5 rounded-2xl border-2 border-green-600 px-6 py-2 font-bold text-green-700 hover:bg-green-50"
+              >
+                Back to login
+              </button>
+            </div>
           </div>
         )}
       </div>

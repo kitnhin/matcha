@@ -112,29 +112,29 @@ const LocationComponent: React.FC<LocationComponentProps> = ({
 
   return (
     <div className="flex flex-col gap-2">
-      <label className="text-xl font-medium text-gray-700">Location</label>
+      <label className="text-sm font-bold text-green-800">Location</label>
 
       <div className="relative">
         <input
           type="text"
-          className="rounded-md border px-2 py-1 w-full"
+          className="rounded-xl border-2 border-green-600 bg-green-50 px-3 py-2 text-green-900 outline-none focus:border-green-500 w-full"
           onChange={(e) => {
             handleLocationInputChange(e);
           }}
           value={
-            locationQuery.length > 35
-              ? locationQuery.substring(0, 35) + "..."
+            locationQuery.length > 30
+              ? locationQuery.substring(0, 30) + "..."
               : locationQuery
           }
         />
         {showLocationRes && (
-          <ul className="absolute left-0 right-0 top-full z-10 max-h-30 overflow-y-auto rounded-md border bg-white shadow-md">
+          <ul className="absolute left-0 right-0 top-full z-10 max-h-30 overflow-y-auto rounded-xl border-2 border-green-600 bg-white">
             {locationRes.map((place, i) => {
               return (
                 <li
                   key={i}
                   onClick={() => handleSelectedLocation(place)}
-                  className="px-2 py-1 cursor-pointer hover:bg-gray-100 text-sm border-b last:border-b-0"
+                  className="px-3 py-2 hover:bg-green-50 text-sm text-green-900 border-b border-green-200"
                 >
                   {place.display_name.length > 40
                     ? place.display_name.substring(0, 40) + "..."
@@ -147,18 +147,22 @@ const LocationComponent: React.FC<LocationComponentProps> = ({
       </div>
       <button
         type="button"
-        className="text-xs text-blue-500 hover:text-blue-700 self-start border px-1 py-1 rounded"
+        className="text-xs font-bold text-green-600 hover:text-green-800 self-start border-2 border-green-600 px-2 py-1 rounded-xl"
         onClick={() => {
           handleAutoLocation();
         }}
       >
         📍 Use current location
       </button>
-      <p className="text-sm text-gray-500">
-        Selected location:{" "}
+      <p className="text-sm text-green-600">
+        Selected location:
         {selectedLocation
-          ? `${selectedLocation.place_name} (${selectedLocation.latitude.toFixed(5)}, ${selectedLocation.longitude.toFixed(5)})`
-          : "None"}
+          ? ` ${
+              selectedLocation.place_name
+            } (${selectedLocation.latitude.toFixed(
+              5
+            )}, ${selectedLocation.longitude.toFixed(5)})`
+          : " None"}
       </p>
     </div>
   );

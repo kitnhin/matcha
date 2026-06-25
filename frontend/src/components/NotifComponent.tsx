@@ -31,7 +31,7 @@ const NotifComponent: React.FC<NotifComponentProps> = ({ message, setShowNotif }
     }, [width]);
 
     return (
-        <div className="fixed bottom-4 bg-gray-200 text-black p-3">
+        <div className="fixed bottom-16 p-3 bg-green-100 text-black">
             <div className="flex">
             {message}
             <button className="ml-2 text-black" onClick={() => setShowNotif(false)}>X</button>

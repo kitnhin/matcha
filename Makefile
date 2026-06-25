@@ -6,7 +6,7 @@ initdb:
 	psql postgres -c "CREATE DATABASE matcha;"
 	psql postgres -c "GRANT ALL PRIVILEGES ON DATABASE matcha TO matcha_user;"
 	psql -d matcha -c "GRANT ALL ON SCHEMA public TO matcha_user;"
-	psql -U matcha_user -d matcha -f ./backend/database/setup.sql
+	psql -U matcha_user -h 127.0.0.1 -d matcha -f ./backend/database/setup.sql
 
 dropdb:
 	psql postgres -c "DROP DATABASE matcha;"
@@ -25,5 +25,9 @@ addv2:
 	VALUES ('ethanlimck2@gmail.com', 'kit2', 'L', 'K', \
 	'$$(python -c "import bcrypt; print(bcrypt.hashpw(b\"123\", bcrypt.gensalt()).decode())")', \
 	TRUE);"
+
+install:
+	cd backend && python -m venv venv && venv/bin/pip install -r requirements.txt
+	cd frontend && npm install
 
 all: dropdb initdb

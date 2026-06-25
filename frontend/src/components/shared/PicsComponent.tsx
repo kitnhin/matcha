@@ -79,7 +79,7 @@ const PicsComponent: React.FC<PicsComponentProps> = ({
     <>
       {/* Pfp block */}
       <div className="flex flex-col gap-2">
-        <label className="text-xl font-medium text-gray-700">
+        <label className="text-sm font-bold text-green-800">
           Profile Picture
         </label>
         <input
@@ -92,7 +92,7 @@ const PicsComponent: React.FC<PicsComponentProps> = ({
         {profilePic ? (
           <div className="w-full flex flex-col items-center gap-1">
             <img
-              className="object-cover w-16 h-16 rounded-md border cursor-pointer"
+              className="object-cover w-16 h-16 rounded-xl border-2 border-green-600 cursor-pointer"
               src={profilePic instanceof File ? URL.createObjectURL(profilePic) : `data:image/jpeg;base64,${profilePic}`}
               alt="+"
               onClick={() => {
@@ -108,7 +108,7 @@ const PicsComponent: React.FC<PicsComponentProps> = ({
         ) : (
           <div className="w-full flex flex-col items-center">
             <div
-              className="w-16 h-16 rounded-md border-2 border-dashed border-gray-300 flex items-center justify-center cursor-pointer text-gray-400 text-xl"
+              className="w-16 h-16 rounded-xl border-2 border-dashed border-green-600 flex items-center justify-center cursor-pointer text-green-600 text-xl"
               onClick={() => {
                 if (pfpInputRef.current) {
                   pfpInputRef.current.click();
@@ -123,7 +123,7 @@ const PicsComponent: React.FC<PicsComponentProps> = ({
 
       {/* Extra pics block */}
       <div className="flex flex-col gap-2">
-        <label className="text-xl font-medium text-gray-700">
+        <label className="text-sm font-bold text-green-800">
           Extra pictures
         </label>
 
@@ -142,7 +142,7 @@ const PicsComponent: React.FC<PicsComponentProps> = ({
                 {extraPics[i] ? (
                   <>
                     <img
-                      className="object-cover w-16 h-16 rounded-md border cursor-pointer"
+                      className="object-cover w-16 h-16 rounded-xl border-2 border-green-600 cursor-pointer"
                       src={extraPics[i] instanceof File ? URL.createObjectURL(extraPics[i]) : `data:image/jpeg;base64,${extraPics[i]}`}
                       alt="+"
                       onClick={() => {
@@ -160,7 +160,7 @@ const PicsComponent: React.FC<PicsComponentProps> = ({
                   </>
                 ) : (
                   <div
-                    className="w-16 h-16 rounded-md border-2 border-dashed border-gray-300 flex items-center justify-center cursor-pointer text-gray-400 text-xl"
+                    className="w-16 h-16 rounded-xl border-2 border-dashed border-green-600 flex items-center justify-center cursor-pointer text-green-600 text-xl"
                     onClick={() => {
                       if (extraPicsInputRefs[i].current) {
                         extraPicsInputRefs[i].current.click();
@@ -177,6 +177,6 @@ const PicsComponent: React.FC<PicsComponentProps> = ({
       </div>
     </>
   );
-};
+}
 
 export default PicsComponent;

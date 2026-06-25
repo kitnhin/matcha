@@ -6,28 +6,30 @@ interface TagsComponentProps {
   setSelectedTags: React.Dispatch<React.SetStateAction<string[]>>;
 }
 
-const TagsComponent: React.FC<TagsComponentProps> = ({ selectedTags, setSelectedTags }) => {
+const TagsComponent: React.FC<TagsComponentProps> = ({
+  selectedTags,
+  setSelectedTags,
+}) => {
+  const AVAILABLE_TAGS = [
+    "vegan",
+    "geek",
+    "piercing",
+    "gaming",
+    "anime",
+    "sports",
+  ];
 
-    const AVAILABLE_TAGS = [
-        "vegan",
-        "geek",
-        "piercing",
-        "gaming",
-        "anime",
-        "sports",
-      ];
-
-      function toggleTag(tag: string) {
-        if (selectedTags.includes(tag)) {
-          setSelectedTags(selectedTags.filter((t) => t !== tag));
-        } else {
-          setSelectedTags([...selectedTags, tag]);
-        }
-      }
+  function toggleTag(tag: string) {
+    if (selectedTags.includes(tag)) {
+      setSelectedTags(selectedTags.filter((t) => t !== tag));
+    } else {
+      setSelectedTags([...selectedTags, tag]);
+    }
+  }
 
   return (
     <div className="flex flex-col gap-2">
-      <label className="text-xl font-medium text-gray-700">Tags</label>
+      <label className="text-sm font-bold text-green-800">Tags</label>
       <div className="flex flex-wrap gap-2">
         {AVAILABLE_TAGS.map((tag) => {
           return (
@@ -35,10 +37,10 @@ const TagsComponent: React.FC<TagsComponentProps> = ({ selectedTags, setSelected
               key={tag}
               type="button"
               onClick={() => toggleTag(tag)}
-              className={`rounded-md border px-3 py-1 text-sm ${
+              className={`rounded-xl border-2 border-green-600 px-3 py-1 text-sm ${
                 selectedTags.includes(tag)
-                  ? "bg-gray-500 text-white"
-                  : "bg-white"
+                  ? "bg-green-700 text-white"
+                  : "bg-white text-green-800"
               }`}
             >
               {tag}

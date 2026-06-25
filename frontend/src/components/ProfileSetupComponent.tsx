@@ -78,11 +78,14 @@ const ProfileSetupComponent: React.FC<ProfileSetupProps> = ({
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100">
-      <div className="w-full max-w-sm rounded-xl border border-gray-200 bg-white p-6 shadow-lg">
-        <h1 className="mb-6 text-center text-2xl font-bold text-gray-800">
-          Profile setup
-        </h1>
+    <div className="min-h-screen flex items-center justify-center bg-green-100">
+      <div className="w-full max-w-sm rounded-3xl border-2 border-green-600 bg-white p-8 shadow-xl">
+        <div className="mb-6 text-center">
+          <p className="text-4xl">🍵</p>
+          <h1 className="text-3xl font-extrabold text-green-800">
+            Profile setup
+          </h1>
+        </div>
 
         <form className="flex flex-col gap-4" onSubmit={handleSubmit}>
           {/* Basic info */}
@@ -119,12 +122,12 @@ const ProfileSetupComponent: React.FC<ProfileSetupProps> = ({
           />
 
           {errorMessage && (
-            <p className="text-center text-sm text-red-600">{errorMessage}</p>
+            <p className="rounded-lg bg-red-50 px-3 py-2 text-center text-sm text-red-600">{errorMessage}</p>
           )}
 
           <button
             type="submit"
-            className="mt-4 rounded bg-blue-500 px-4 py-2 text-white hover:bg-blue-600"
+            className="mt-2 rounded-2xl bg-green-700 px-4 py-2 font-bold text-white hover:bg-green-800"
           >
             Submit
           </button>
@@ -132,6 +135,6 @@ const ProfileSetupComponent: React.FC<ProfileSetupProps> = ({
       </div>
     </div>
   );
-};
+}
 
 export default ProfileSetupComponent;

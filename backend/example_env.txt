@@ -1,6 +1,6 @@
 SECRET_KEY=
-FRONTEND_URL=
-DATABASE_URL=
+FRONTEND_URL=http://localhost:5173
+DATABASE_URL=postgresql://matcha_user:matchapw@localhost:5432/matcha
 
 MAIL_USERNAME=
 MAIL_PASSWORD=

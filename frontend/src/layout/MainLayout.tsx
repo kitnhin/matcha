@@ -1,9 +1,15 @@
 import { useEffect, useState } from "react";
 import "../App.css";
-import { Outlet } from "react-router-dom";
+import { Outlet, useLocation, useNavigate } from "react-router-dom";
 import WS from "../class/ws";
 import NotifComponent from "../components/NotifComponent";
-import { FiLogOut, FiMail, FiX } from "react-icons/fi";
+import {
+  FiLogOut,
+  FiGlobe,
+  FiSearch,
+  FiSettings,
+  FiHome,
+} from "react-icons/fi";
 import ConfirmLogoutComponent from "../components/ConfirmLogoutComponent";
 import UnreadNotifsComponent from "../components/UnreadNotifsComponent";
 
@@ -18,7 +24,8 @@ const MainLayout: React.FC<MainLayoutProps> = ({ setIsLoggedIn }) => {
   const [unreadNotifs, setUnreadNotifs] = useState<string[]>([]);
   const [notifKey, setNotifKey] = useState<number>(0);
 
-  const [showUnreadNotifs, setShowUnreadNotifs] = useState<boolean>(false);
+  const navigate = useNavigate();
+  const location = useLocation();
 
   useEffect(() => {
     // WS.setup();
@@ -27,7 +34,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({ setIsLoggedIn }) => {
       if (WS.openChat !== data.senderUsername) {
         setNotif(data.message);
         setShowNotif(true);
-        setNotifKey((prev) => prev + 1)
+        setNotifKey((prev) => prev + 1);
       }
     });
 
@@ -42,27 +49,76 @@ const MainLayout: React.FC<MainLayoutProps> = ({ setIsLoggedIn }) => {
     <>
       <Outlet />
       {showNotif && (
-        <NotifComponent key={notifKey} message={notif} setShowNotif={setShowNotif} />
+        <NotifComponent
+          key={notifKey}
+          message={notif}
+          setShowNotif={setShowNotif}
+        />
       )}
 
-      <div className="fixed bottom-4 right-4 gap-3 flex flex-col items-end">
-
+      <div className="fixed bottom-16 right-4 gap-3 flex flex-col items-end">
         {unreadNotifs && unreadNotifs.length > 0 && (
           <UnreadNotifsComponent
             unreadNotifs={unreadNotifs}
             setUnreadNotifs={setUnreadNotifs}
           />
         )}
-
-        <button
-          onClick={() => {
-            setShowConfirmLogout(true);
-          }}
-          className="flex flex-col justify-center items-center w-10 h-10 p-2 rounded border text-red-500 hover:text-red-700"
-        >
-          <FiLogOut className="w-10 h-10" />
-        </button>
       </div>
+
+      {/* Bot nav bar */}
+      {location.pathname !== "/setup" && (
+        <div className="fixed bottom-0 left-0 right-0 flex items-center justify-between bg-white border-t-2 border-green-600">
+          <div className="max-w-md flex mx-auto gap-10 p-1">
+            <button
+              onClick={() => navigate("/home")}
+              className={`flex flex-col items-center text-green-700 hover:text-green-900 p-1 rounded ${
+                location.pathname === "/home" ? "text-white bg-green-700" : ""
+              }`}
+            >
+              <FiHome className="text-xl" />
+              <div className="text-xs font-bold">Home</div>
+            </button>
+            <button
+              onClick={() => navigate("/browse")}
+              className={`flex flex-col items-center text-green-700 hover:text-green-900 p-1 rounded ${
+                location.pathname === "/browse" ? "text-white bg-green-700" : ""
+              }`}
+            >
+              <FiGlobe className="text-xl" />
+              <div className="text-xs font-bold">Browse</div>
+            </button>
+            <button
+              onClick={() => navigate("/research")}
+              className={`flex flex-col items-center text-green-700 hover:text-green-900 p-1 rounded ${
+                location.pathname === "/research"
+                  ? "text-white bg-green-700"
+                  : ""
+              }`}
+            >
+              <FiSearch className="text-xl" />
+              <div className="text-xs font-bold">Research</div>
+            </button>
+            <button
+              onClick={() => navigate("/settings")}
+              className={`flex flex-col items-center text-green-700 hover:text-green-900 p-1 rounded ${
+                location.pathname === "/settings"
+                  ? "text-white bg-green-700"
+                  : ""
+              }`}
+            >
+              <FiSettings className="text-xl" />
+              <div className="text-xs font-bold">Settings</div>
+            </button>
+            <button
+              onClick={() => setShowConfirmLogout(true)}
+              className="flex flex-col items-center text-green-700 hover:text-green-900 p-1 rounded"
+            >
+              <FiLogOut className="text-xl" />
+              <div className="text-xs font-bold">Logout</div>
+            </button>
+          </div>
+        </div>
+      )}
 
       {showConfirmLogout && (
         <ConfirmLogoutComponent
