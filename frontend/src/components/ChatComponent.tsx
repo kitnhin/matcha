@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import "../App.css";
 import WS from "../class/ws";
 import defaultPfp from "../assets/default_pfp.jpg";
-import { FiSend } from "react-icons/fi";
+import { FiSend, FiX } from "react-icons/fi";
 import VisitProfileComponent from "./VisitProfileComponent";
 
 interface ChatComponentProps {
@@ -89,7 +89,7 @@ const ChatComponent: React.FC<ChatComponentProps> = ({
             WS.openChat = null;
           }}
         >
-          ✕
+          <FiX />
         </button>
       </div>
 

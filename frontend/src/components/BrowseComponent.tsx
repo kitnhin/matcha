@@ -132,7 +132,7 @@ const BrowseComponent: React.FC<BrowseComponentProps> = ({}) => {
   return (
     <div className="min-w-screen h-screen flex flex-col items-center bg-green-100 pb-16">
       <div className="flex min-w-screen border-b-2 border-green-600 bg-white items-center justify-center p-4">
-        <h1 className="text-2xl font-extrabold text-green-800">Browse</h1>
+        <h1 className="text-2xl font-bold text-green-800">Browse</h1>
 
         <SortFilterComponent
           sortFilterSpecs={sortFilterSpecs}

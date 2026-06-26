@@ -91,7 +91,7 @@ const LoginComponent: React.FC<LoginComponentProps> = ({ setIsLoggedIn }) => {
       <div className="w-full max-w-sm rounded-3xl border-2 border-green-600 bg-white p-8 shadow-xl">
         <div className="mb-6 text-center">
           <p className="text-4xl">🍵</p>
-          <h1 className="text-3xl font-extrabold text-green-800">matcha</h1>
+          <h1 className="text-3xl font-bold text-green-800">matcha</h1>
         </div>
 
         <form className="flex flex-col gap-4" onSubmit={handleSubmit}>
@@ -184,7 +184,7 @@ const LoginComponent: React.FC<LoginComponentProps> = ({ setIsLoggedIn }) => {
 
               <div className="mb-5 text-center">
                 <p className="text-3xl">🍵</p>
-                <h2 className="text-xl font-extrabold text-green-800">
+                <h2 className="text-xl font-bold text-green-800">
                   Forgot password
                 </h2>
               </div>

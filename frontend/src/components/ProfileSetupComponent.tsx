@@ -82,7 +82,7 @@ const ProfileSetupComponent: React.FC<ProfileSetupProps> = ({
       <div className="w-full max-w-sm rounded-3xl border-2 border-green-600 bg-white p-8 shadow-xl">
         <div className="mb-6 text-center">
           <p className="text-4xl">🍵</p>
-          <h1 className="text-3xl font-extrabold text-green-800">
+          <h1 className="text-3xl font-bold text-green-800">
             Profile setup
           </h1>
         </div>

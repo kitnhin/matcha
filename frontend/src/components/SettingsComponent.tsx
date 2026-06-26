@@ -119,7 +119,7 @@ const SettingsComponent: React.FC<SettingsProps> = ({}) => {
       <div className="w-full max-w-sm rounded-3xl border-2 border-green-600 bg-white p-8 shadow-xl">
         <div className="mb-6 text-center">
           <p className="text-4xl">🍵</p>
-          <h1 className="text-3xl font-extrabold text-green-800">Settings</h1>
+          <h1 className="text-3xl font-bold text-green-800">Settings</h1>
         </div>
 
         <form className="flex flex-col gap-4" onSubmit={handleSubmit}>
