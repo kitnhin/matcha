@@ -192,6 +192,8 @@ def handle_like_profile(ws, user_id, obj):
             "INSERT INTO likes (liker_id, liked_id) VALUES (%s, %s) ON CONFLICT DO NOTHING",
             (user_id, profile_id),
         )
+        cur.execute("UPDATE users SET fame = fame + 1 WHERE id = %s RETURNING fame", (profile_id,))
+        new_fame = cur.fetchone()[0]
         if other_liked:
             is_connected = True
         notif_msg = f"{username} liked your profile"
@@ -200,14 +202,20 @@ def handle_like_profile(ws, user_id, obj):
             "DELETE FROM likes WHERE liker_id =  %s AND liked_id = %s",
             (user_id, profile_id),
         )
+        cur.execute("UPDATE users SET fame = fame - 1 WHERE id = %s RETURNING fame", (profile_id,))
+        new_fame = cur.fetchone()[0]
         notif_msg = f"{username} unliked your profile"
 
     #see if the user is blocked by other
     cur.execute("SELECT * FROM blocks WHERE blocked_id = %s AND blocker_id = %s", (user_id, profile_id))
     is_blocked = cur.fetchone() is not None
 
+    other_ws = ws_conn.get(profile_id)
+    if other_ws:
+        other_ws.send(json.dumps({"type": "updateFame", "newFame": new_fame}))
+
+    #notif
     if not is_blocked:
-        other_ws = ws_conn.get(profile_id)
         if other_ws:
             if other_liked:  # if the other already liked user, send json to show new chat for other user, and show connected in profile
                 get_user_home_data(other_ws, profile_id, {"type": "getUserHomeData"})
@@ -215,9 +223,9 @@ def handle_like_profile(ws, user_id, obj):
             other_ws.send(json.dumps({"type": "updateIsConnected", "isConnected": is_connected}))
         else: #store notif
             cur.execute("INSERT into unread_notifs (user_id, content) VALUES (%s, %s)", (profile_id, notif_msg))
-            conn.commit()
 
     conn.commit()
+    get_profile_data(ws, user_id, {"profile_id": profile_id})
     ws.send(
         json.dumps(
             {

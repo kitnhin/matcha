@@ -51,6 +51,9 @@ const HomeComponent: React.FC<HomeComponentProps> = () => {
         return updatedConvos;
       });
     });
+    WS.add_callback("updateFame", (message) => {
+      setFame(message.newFame);
+    })
 
     WS.send({ type: "get_user_home_data" });
   }, []);
