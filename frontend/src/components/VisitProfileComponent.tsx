@@ -72,6 +72,7 @@ const VisitProfileComponent: React.FC<VisitProfileComponentProps> = ({
     WS.add_callback("reportProfileStatus", (data) => {
       if (data.status === "success") {
         setReportStatus(data.reportStatus);
+        setConnectedStatus(data.isConnected);
       } else {
         setErrorMessage(data.errorMessage);
       }
@@ -79,6 +80,12 @@ const VisitProfileComponent: React.FC<VisitProfileComponentProps> = ({
 
     WS.add_callback("updateIsConnected", (data) => {
       setConnectedStatus(data.isConnected);
+    });
+
+    WS.add_callback("updateVisitProfileFame", (data) => {
+      setProfile((prevProfile) => {
+        return (prevProfile ? { ...prevProfile, fame: data.newFame } : prevProfile);
+      });
     });
 
     WS.send({ type: "get_profile_info", profile_id: profileId });

@@ -225,7 +225,6 @@ def handle_like_profile(ws, user_id, obj):
             cur.execute("INSERT into unread_notifs (user_id, content) VALUES (%s, %s)", (profile_id, notif_msg))
 
     conn.commit()
-    get_profile_data(ws, user_id, {"profile_id": profile_id})
     ws.send(
         json.dumps(
             {
@@ -238,6 +237,7 @@ def handle_like_profile(ws, user_id, obj):
         )
     )
     ws.send(json.dumps({"type": "updateIsConnected", "isConnected": is_connected}))
+    ws.send(json.dumps({"type": "updateVisitProfileFame", "newFame": new_fame}))
 
 
 def handle_report_profile(ws, user_id, obj):
