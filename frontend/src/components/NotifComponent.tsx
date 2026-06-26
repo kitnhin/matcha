@@ -1,6 +1,5 @@
 import { useRef, useState, useEffect } from "react";
 import "../App.css";
-import { useNavigate } from "react-router-dom";
 
 interface NotifComponentProps {
     message: string;

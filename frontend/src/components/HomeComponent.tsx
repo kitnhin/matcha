@@ -1,26 +1,22 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
 import "../App.css";
-import { handleLogout } from "../utils/auth";
 import WS from "../class/ws";
 import defaultPfp from "../assets/default_pfp.jpg";
 import VisitProfileComponent from "./VisitProfileComponent";
 import ChatComponent from "./ChatComponent";
-import { FiGlobe, FiSearch, FiSettings } from "react-icons/fi";
 
 interface HomeComponentProps {
-  setIsLoggedIn: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 interface convo {
   otherUsername: string;
   otherPfp: string;
+  otherId: number;
   lastMessage: string;
   lastSender: string;
 }
 
-const HomeComponent: React.FC<HomeComponentProps> = ({ setIsLoggedIn }) => {
-  const navigate = useNavigate();
+const HomeComponent: React.FC<HomeComponentProps> = () => {
 
   const [username, setUsername] = useState<string>("");
   const [fame, setFame] = useState<string>("");
@@ -31,6 +27,7 @@ const HomeComponent: React.FC<HomeComponentProps> = ({ setIsLoggedIn }) => {
 
   const [showChat, setShowChat] = useState<boolean>(false);
   const [chatOtherUsername, setChatOtherUsername] = useState<string>("");
+  const [chatOtherId, setChatOtherId] = useState<number>(-1);
 
   useEffect(() => {
     WS.add_callback("userHomeData", (message) => {
@@ -98,6 +95,7 @@ const HomeComponent: React.FC<HomeComponentProps> = ({ setIsLoggedIn }) => {
                   onClick={() => {
                     setShowChat(true);
                     setChatOtherUsername(convo.otherUsername);
+                    setChatOtherId(convo.otherId);
                   }}
                 >
                   <img
@@ -126,11 +124,12 @@ const HomeComponent: React.FC<HomeComponentProps> = ({ setIsLoggedIn }) => {
         </div>
 
         {/* selected chat area */}
-        <div className="flex-1 flex flex-col bg-white">
+        <div className="flex-1 flex flex-col bg-white pb-15">
           {showChat ? (
             <ChatComponent
               setShowChat={setShowChat}
               otherUsername={chatOtherUsername}
+              otherId={chatOtherId}
             />
           ) : (
             <div className="flex-1 flex items-center justify-center">

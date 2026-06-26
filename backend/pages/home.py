@@ -46,6 +46,7 @@ def get_user_home_data(ws, user_id, obj):
                 {
                     "otherUsername": other_username,
                     "otherPfp": pfp,
+                    "otherId": other_id,
                     "lastMessage": last_message[1] if last_message else "",
                     "lastSender": last_sender
                 }

@@ -30,14 +30,16 @@ for i in range(50):
     latitude = 51.5 + random.uniform(-0.1, 0.1)
     longitude = -0.1 + random.uniform(-0.1, 0.1)
     location = fake.city()
+    from datetime import datetime, timedelta
+    last_seen = datetime.now() - timedelta(minutes=random.randint(0, 10080))
 
     cur.execute(
         "INSERT INTO users (username, email, first_name, last_name, password, "
         "gender, sexual_preference, age, fame, latitude, longitude, "
-        "location, is_verified, is_complete) "
-        "VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, true, true) RETURNING id",
+        "location, is_verified, is_complete, last_seen) "
+        "VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, true, true, %s) RETURNING id",
         (username, email, first_name, last_name, password, gender,
-         sexual_preference, age, fame, latitude, longitude, location)
+        sexual_preference, age, fame, latitude, longitude, location, last_seen)
     )
 
     last_id = cur.fetchone()[0]

@@ -3,9 +3,11 @@ import "../App.css";
 import WS from "../class/ws";
 import defaultPfp from "../assets/default_pfp.jpg";
 import { FiSend } from "react-icons/fi";
+import VisitProfileComponent from "./VisitProfileComponent";
 
 interface ChatComponentProps {
   otherUsername: string;
+  otherId: number;
   setShowChat: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
@@ -16,6 +18,7 @@ interface message {
 
 const ChatComponent: React.FC<ChatComponentProps> = ({
   otherUsername,
+  otherId,
   setShowChat,
 }) => {
   const [messages, setMessages] = useState<message[]>([]);
@@ -23,6 +26,8 @@ const ChatComponent: React.FC<ChatComponentProps> = ({
   const [userPfp, setUserPfp] = useState<string>("");
   const [inputContent, setInputContent] = useState<string>("");
   const [errorMsg, setErrorMsg] = useState<string>("");
+
+  const [showProfile, setShowProfile] = useState<boolean>(false);
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
@@ -32,12 +37,11 @@ const ChatComponent: React.FC<ChatComponentProps> = ({
 
   useEffect(() => {
     WS.add_callback("getChatData", (message) => {
-      if(message.status === "success") {
+      if (message.status === "success") {
         setMessages(message.messages || []);
         setOtherPfp(message.otherPfp);
         setUserPfp(message.userPfp);
-      }
-      else {
+      } else {
         setErrorMsg(message.errorMessage);
       }
       WS.openChat = otherUsername;
@@ -66,13 +70,18 @@ const ChatComponent: React.FC<ChatComponentProps> = ({
   return (
     <div className="flex flex-col h-full bg-white">
       {/* Header */}
-      <div className="flex items-center gap-3 p-4 border-b border-green-600">
-        <img
-          src={otherPfp ? `data:image/jpeg;base64,${otherPfp}` : defaultPfp}
-          alt="profile"
-          className="w-10 h-10 rounded-full object-cover"
-        />
-        <p className="text-lg font-bold text-green-800">{otherUsername}</p>
+      <div className="flex p-4 border-b border-green-600">
+        <div
+          className="flex items-center gap-3"
+          onClick={() => setShowProfile(true)}
+        >
+          <img
+            src={otherPfp ? `data:image/jpeg;base64,${otherPfp}` : defaultPfp}
+            alt="profile"
+            className="w-10 h-10 rounded-full object-cover"
+          />
+          <p className="text-lg font-bold text-green-800">{otherUsername}</p>
+        </div>
         <button
           className="text-green-600 hover:text-green-800 ml-auto"
           onClick={() => {
@@ -89,7 +98,11 @@ const ChatComponent: React.FC<ChatComponentProps> = ({
         {messages && messages.length > 0 ? (
           messages.map((msg, i) =>
             msg.senderUsername === "You" ? (
-              <div key={i} className="mr-auto flex gap-2">
+              <div
+                key={i}
+                className="mr-auto flex gap-2"
+                onClick={() => setShowProfile(true)}
+              >
                 <img
                   src={
                     userPfp ? `data:image/jpeg;base64,${userPfp}` : defaultPfp
@@ -108,15 +121,13 @@ const ChatComponent: React.FC<ChatComponentProps> = ({
                 </p>
                 <img
                   src={
-                    otherPfp
-                      ? `data:image/jpeg;base64,${otherPfp}`
-                      : defaultPfp
+                    otherPfp ? `data:image/jpeg;base64,${otherPfp}` : defaultPfp
                   }
                   alt="profile"
                   className="w-10 h-10 rounded-full object-cover"
                 />
               </div>
-            )
+            ),
           )
         ) : (
           <p className="text-green-600">No messages yet</p>
@@ -145,8 +156,15 @@ const ChatComponent: React.FC<ChatComponentProps> = ({
       ) : (
         <p className="text-red-500 p-3">{errorMsg}</p>
       )}
+
+      {showProfile && (
+        <VisitProfileComponent
+          profileId={otherId}
+          setShowProfile={setShowProfile}
+        />
+      )}
     </div>
   );
-}
+};
 
 export default ChatComponent;

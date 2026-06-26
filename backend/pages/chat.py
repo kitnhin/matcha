@@ -109,6 +109,9 @@ def handle_new_message(ws, user_id, obj):
         )
         return
 
+    if content is None or content.strip() == "":
+        return
+
     # insert new message into db
     cur.execute(
         "INSERT INTO messages (sender_id, receiver_id, content) VALUES (%s, %s, %s)",

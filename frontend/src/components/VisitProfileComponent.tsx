@@ -2,7 +2,8 @@ import { useEffect, useState } from "react";
 import "../App.css";
 import WS from "../class/ws";
 import defaultPfp from "../assets/default_pfp.jpg";
-import { FiAlertTriangle, FiUserX } from "react-icons/fi";
+import { FiAlertTriangle, FiUserX, FiHeart, FiArrowLeft } from "react-icons/fi";
+import { FaHeart } from "react-icons/fa";
 import ConfirmBlockComponent from "./ConfirmBlockComponent";
 
 interface VisitProfileComponentProps {
@@ -38,10 +39,8 @@ const VisitProfileComponent: React.FC<VisitProfileComponentProps> = ({
   const [likeStatus, setLikeStatus] = useState<boolean>(false);
   const [connectedStatus, setConnectedStatus] = useState<boolean>(false);
   const [reportStatus, setReportStatus] = useState<boolean>(false);
-  const [likeErrorMessage, setLikeErrorMessage] = useState<string>("");
-  const [reportErrorMessage, setReportErrorMessage] = useState<string>("");
   const [showBlockConfirm, setShowBlockConfirm] = useState<boolean>(false);
-  const [blockErrorMessage, setBlockErrorMessage] = useState<string>("");
+  const [errorMessage, setErrorMessage] = useState<string>("");
 
   useEffect(() => {
     // WS.setup();
@@ -66,7 +65,7 @@ const VisitProfileComponent: React.FC<VisitProfileComponentProps> = ({
         setLikeStatus(data.likeStatus);
         setConnectedStatus(data.connectedStatus);
       } else {
-        setLikeErrorMessage(data.errorMessage);
+        setErrorMessage(data.errorMessage);
       }
     });
 
@@ -74,7 +73,7 @@ const VisitProfileComponent: React.FC<VisitProfileComponentProps> = ({
       if (data.status === "success") {
         setReportStatus(data.reportStatus);
       } else {
-        setReportErrorMessage(data.errorMessage);
+        setErrorMessage(data.errorMessage);
       }
     });
 
@@ -102,178 +101,183 @@ const VisitProfileComponent: React.FC<VisitProfileComponentProps> = ({
 
   return (
     <>
-      <div className="fixed inset-0 flex flex-col items-center justify-center  min-h-screen bg-gray-100">
-        <div className="w-full max-w-sm rounded-xl border border-gray-200 bg-white p-6 break-words">
-          {/* <h1 className="mb-6 text-center text-2xl font-bold text-gray-800">
-            {profile ? `${profile.username}'s profile` : "Loading..."}
-          </h1> */}
+      <div className="fixed inset-0 flex flex-col items-center justify-center min-h-screen bg-green-100 pb-15 pt-10 overflow-y-auto">
+        <div className="w-full max-w-sm">
+          <div>
+            <button
+              className="flex items-center mt-2 text-green-600 hover:text-green-800 font-semibold text-lg"
+              onClick={() => setShowProfile(false)}
+            >
+              <FiArrowLeft />
+              <p>Back</p>
+            </button>
+          </div>
+          <div className="w-full max-w-sm rounded-3xl border-2 border-green-600 bg-white p-5 break-words">
+            {profile && (
+              <>
+                <div className="flex gap-4 items-center">
+                  <img
+                    src={
+                      profile.profilePic
+                        ? `data:image/jpeg;base64,${profile.profilePic}`
+                        : defaultPfp
+                    }
+                    alt="profile"
+                    className="w-12 h-12 rounded-full object-cover border-2 border-green-600"
+                  />
+                  <div className="flex flex-col text-left">
+                    <h1 className="text-2xl font-bold text-green-800">
+                      {profile.username}'s profile
+                    </h1>
+                    {profile.onlineStatus === "online" ? (
+                      <p className="text-green-600 font-semibold text-sm">
+                        Online
+                      </p>
+                    ) : (
+                      <p className="text-green-600 text-sm">
+                        Last online: {profile.onlineStatus}
+                      </p>
+                    )}
+                  </div>
 
-          {profile && (
-            <>
-              <div className="flex gap-4 items-center">
-                <img
-                  src={
-                    profile.profilePic
-                      ? `data:image/jpeg;base64,${profile.profilePic}`
-                      : defaultPfp
-                  }
-                  alt="profile"
-                  className="w-12 h-12 rounded-full object-cover"
-                />
-                <div className="flex flex-col text-left">
-                  <h1 className="text-2xl font-bold text-gray-800">
-                    {profile.username}'s profile
-                  </h1>
-                  {profile.onlineStatus === "online" ? (
-                    <p className="text-green-500 text-sm">Online</p>
-                  ) : (
-                    <p className="text-gray-500 text-sm">
-                      Last online: {profile.onlineStatus}
-                    </p>
-                  )}
-                </div>
+                  <div className="flex ml-auto gap-2">
+                    {reportStatus ? (
+                      <div className="flex flex-col ml-auto items-center justify-center text-green-400">
+                        <button>
+                          <FiAlertTriangle className="w-5 h-5" />
+                        </button>
+                        <p className="text-xs font-bold">Reported</p>
+                      </div>
+                    ) : (
+                      <div className="flex flex-col ml-auto items-center justify-center text-green-700">
+                        <button onClick={() => handleReport()}>
+                          <FiAlertTriangle className="w-5 h-5" />
+                        </button>
+                        <p className="text-xs font-bold">Report</p>
+                      </div>
+                    )}
 
-                <div className="flex ml-auto gap-2">
-                  {reportStatus ? (
-                    <div className="flex flex-col ml-auto items-center justify-center text-gray-400">
-                      <button>
-                        <FiAlertTriangle className="w-5 h-5" />
+                    <div className="flex flex-col ml-auto items-center justify-center text-green-700">
+                      <button onClick={() => setShowBlockConfirm(true)}>
+                        <FiUserX className="w-5 h-5" />
                       </button>
-                      <p className="text-xs">Reported</p>
+                      <p className="text-xs font-bold">Block</p>
                     </div>
-                  ) : (
-                    <div className="flex flex-col ml-auto items-center justify-center">
-                      <button onClick={() => handleReport()}>
-                        <FiAlertTriangle className="w-5 h-5" />
-                      </button>
-                      <p className="text-xs">Report</p>
-                    </div>
-                  )}
-
-                  <div className="flex flex-col ml-auto items-center justify-center">
-                    <button onClick={() => setShowBlockConfirm(true)}>
-                      <FiUserX className="w-5 h-5" />
-                    </button>
-                    <p className="text-xs">Block</p>
                   </div>
                 </div>
-              </div>
 
-              <div className="flex flex-col gap-2 mt-5">
-                <p>{`First Name: ${profile.firstName}`}</p>
-                <p>{`Last Name: ${profile.lastName}`}</p>
-                <p>{`Age: ${profile.age}`}</p>
-                {profile.tags.length > 0 && (
-                  <>
-                    <div className="flex gap-2">
-                      <p>Tags: </p>
+                <div className="flex flex-col gap-1 mt-1 text-green-800">
+                  <p>{`First Name: ${profile.firstName}`}</p>
+                  <p>{`Last Name: ${profile.lastName}`}</p>
+                  <p>{`Age: ${profile.age}`}</p>
+                  {profile.tags.length > 0 && (
+                    <div className="flex gap-2 items-center">
+                      <p>Tags:</p>
                       {profile.tags.map((tag, i) => (
                         <div
                           key={i}
-                          className="px-2 py-1 bg-grey-200 rounded border text-sm"
+                          className="px-2 py-1 bg-green-50 rounded-xl border-2 border-green-600 text-sm font-bold text-green-800"
                         >
                           {tag}
                         </div>
                       ))}
                     </div>
-                  </>
-                )}
-                <p>{`Gender: ${profile.gender}`}</p>
-                <p>{`Sexual preference: ${profile.sexualPreference}`}</p>
-                <p>{`Biography: ${
-                  profile.biography ? profile.biography : "-"
-                }`}</p>
-                <p>{`Fame: ${profile.fame}`}</p>
-                <p>{`Location: ${profile.location}`}</p>
-                {profile.extraPics.length > 0 && (
-                  <>
-                    <p>Extra pics:</p>
-                    <div className="flex gap-4">
-                      {profile.extraPics.map((pic, i) => (
-                        <img
-                          key={i}
-                          src={`data:image/jpeg;base64,${pic}`}
-                          alt={`extra-pic-${i}`}
-                          className="w-15 h-15 rounded object-cover"
-                        />
-                      ))}
-                    </div>
-                  </>
-                )}
-
-                {/* Liked by */}
-                {profile.likedBy && (
-                  <div className="flex">
-                    <p>Liked by: </p>
-                    {profile.likedBy && profile.likedBy.length > 0 ? (
-                      profile.likedBy.map((username, i) => (
-                        <p key={i} className="ml-1">
-                          {username}
-                          {i !== profile.likedBy.length - 1 && ","}
-                        </p>
-                      ))
-                    ) : (
-                      <p className="ml-1">-</p>
-                    )}
-                  </div>
-                )}
-
-                {/* Viewed by */}
-                {profile.viewedBy && (
-                  <div className="flex">
-                    <p>Viewed by: </p>
-                    {profile.viewedBy && profile.viewedBy.length > 0 ? (
-                      profile.viewedBy.map((username, i) => (
-                        <p key={i} className="ml-1">
-                          {username}
-                          {i !== profile.viewedBy.length - 1 && ","}
-                        </p>
-                      ))
-                    ) : (
-                      <p className="ml-1">-</p>
-                    )}
-                  </div>
-                )}
-
-                {likeErrorMessage && (
-                  <p className="text-red-500 text-sm">{likeErrorMessage}</p>
-                )}
-                {reportErrorMessage && (
-                  <p className="text-red-500 text-sm">{reportErrorMessage}</p>
-                )}
-                {blockErrorMessage && (
-                    <p className="text-red-500 text-sm">{blockErrorMessage}</p>
-                )}
-
-                <div className="flex flex-col gap-1 items-center">
-                  <button
-                    onClick={() => handleLike(!likeStatus)}
-                    className={`text-2xl border rounded w-full ${
-                      likeStatus ? "text-red-500" : "text-gray-300"
-                    }`}
-                  >
-                    ♥
-                  </button>
-                  {connectedStatus && (
-                    <p className="text-sm text-gray-500">(Connected)</p>
                   )}
+                  <p>{`Gender: ${profile.gender}`}</p>
+                  <p>{`Sexual preference: ${profile.sexualPreference}`}</p>
+                  <p>{`Biography: ${profile.biography ? profile.biography : "-"}`}</p>
+                  <p>
+                    Fame:{" "}
+                    <span className="text-orange-500 font-bold">
+                      🔥 {profile.fame}
+                    </span>
+                  </p>
+                  <p>{`Location: ${profile.location}`}</p>
+                  {profile.extraPics.length > 0 && (
+                    <>
+                      <p>Extra pics:</p>
+                      <div className="flex gap-4">
+                        {profile.extraPics.map((pic, i) => (
+                          <img
+                            key={i}
+                            src={`data:image/jpeg;base64,${pic}`}
+                            alt={`extra-pic-${i}`}
+                            className="w-15 h-15 rounded-xl border-2 border-green-600 object-cover"
+                          />
+                        ))}
+                      </div>
+                    </>
+                  )}
+
+                  {profile.likedBy && (
+                    <div className="flex">
+                      <p>Liked by:</p>
+                      {profile.likedBy.length > 0 ? (
+                        profile.likedBy.map((username, i) => (
+                          <p key={i} className="ml-1">
+                            {username}
+                            {i !== profile.likedBy.length - 1 && ","}
+                          </p>
+                        ))
+                      ) : (
+                        <p className="ml-1">-</p>
+                      )}
+                    </div>
+                  )}
+
+                  {profile.viewedBy && (
+                    <div className="flex">
+                      <p>Viewed by:</p>
+                      {profile.viewedBy.length > 0 ? (
+                        profile.viewedBy.map((username, i) => (
+                          <p key={i} className="ml-1">
+                            {username}
+                            {i !== profile.viewedBy.length - 1 && ","}
+                          </p>
+                        ))
+                      ) : (
+                        <p className="ml-1">-</p>
+                      )}
+                    </div>
+                  )}
+
+                  {errorMessage && (
+                    <p className="rounded-lg bg-red-50 px-3 py-2 text-center text-sm text-red-600">
+                      {errorMessage}
+                    </p>
+                  )}
+
+                  <div className="flex flex-col gap-1 items-center">
+                    <button
+                      onClick={() => handleLike(!likeStatus)}
+                      className={`mt-2 text-2xl rounded-2xl border-2 border-green-600 w-full py-1 hover:bg-green-50 text-green-700`}
+                    >
+                      {likeStatus ? (
+                        <FaHeart className="mx-auto" />
+                      ) : (
+                        <FiHeart className="mx-auto" />
+                      )}
+                    </button>
+                    {connectedStatus && (
+                      <p className="text-sm text-green-600 font-bold">
+                        (Connected)
+                      </p>
+                    )}
+                  </div>
                 </div>
-              </div>
-            </>
+              </>
+            )}
+          </div>
+
+          {showBlockConfirm && (
+            <ConfirmBlockComponent
+              setShowConfirmation={setShowBlockConfirm}
+              setShowProfile={setShowProfile}
+              setBlockErrorMessage={setErrorMessage}
+              profile_id={profileId}
+            />
           )}
         </div>
-        <button onClick={() => setShowProfile(false)} className="text-xl">
-          ← Back
-        </button>
-
-        {showBlockConfirm && (
-          <ConfirmBlockComponent
-            setShowConfirmation={setShowBlockConfirm}
-            setShowProfile={setShowProfile}
-            setBlockErrorMessage={setBlockErrorMessage}
-            profile_id={profileId}
-          />
-        )}
       </div>
     </>
   );

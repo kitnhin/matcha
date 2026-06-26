@@ -30,7 +30,7 @@ export const ProfileCardComponent: React.FC<ProfileCardComponentProps> = ({
         setShowProfile(true);
         setShowProfileId(profile.userId);
       }}
-      className="mb-2 max-w-xs p-4"
+      className="mt-2 p-4 max-w-xs rounded-3xl"
     >
       <img
         src={
@@ -41,15 +41,15 @@ export const ProfileCardComponent: React.FC<ProfileCardComponentProps> = ({
         alt={profile.username}
         className="w-full aspect-square object-cover rounded-3xl"
       />
-      <div className="p-3">
+      <div className="p-1">
         <div className="flex items-center justify-between">
-          <span className="font-semibold">
+          <div className="font-semibold text-base">
             {profile.username}, {profile.age}
-          </span>
-          <span className="text-orange-500 text-sm">🔥 {profile.fame}</span>
+          </div>
+          <div className="text-orange-500 text-sm">🔥 {profile.fame}</div>
         </div>
-        <p className="text-sm text-gray-400 mt-1">{profile.location}</p>
-        <p className="text-xs text-gray-500 mt-1">
+        <p className="text-xs text-gray-800">{profile.location}</p>
+        <p className="text-xs text-gray-800">
           {profile.commonTags} common tags
         </p>
       </div>

@@ -12,20 +12,6 @@ dropdb:
 	psql postgres -c "DROP DATABASE matcha;"
 	psql postgres -c "DROP USER matcha_user;"
 
-addv:
-	psql -U matcha_user -d matcha -c \
-	"INSERT INTO users (email, username, first_name, last_name, password, is_verified) \
-	VALUES ('ethanlimck@gmail.com', 'kit', 'L', 'K', \
-	'$$(python -c "import bcrypt; print(bcrypt.hashpw(b\"123\", bcrypt.gensalt()).decode())")', \
-	TRUE);"
-
-addv2:
-	psql -U matcha_user -d matcha -c \
-	"INSERT INTO users (email, username, first_name, last_name, password, is_verified) \
-	VALUES ('ethanlimck2@gmail.com', 'kit2', 'L', 'K', \
-	'$$(python -c "import bcrypt; print(bcrypt.hashpw(b\"123\", bcrypt.gensalt()).decode())")', \
-	TRUE);"
-
 install:
 	cd backend && python -m venv venv && venv/bin/pip install -r requirements.txt
 	cd frontend && npm install
