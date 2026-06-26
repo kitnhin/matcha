@@ -168,6 +168,15 @@ def forgot_password():
     return {"forgotPasswordStatus" : "success"}
 
 
+@auth_bp.get("/auth/verify-forgot-password")
+def verify_forgot_password():
+    token = request.args.get("token")
+    cur.execute("SELECT * FROM users WHERE verification_token = %s", (token,))
+    user = cur.fetchone()
+    if user:
+        return {"verifyStatus" : "success"}
+    return {"verifyStatus" : "fail", "errorMessage" : "Invalid or expired token"}
+
 @auth_bp.post("/auth/save-forgot-password")
 def save_forgot_password():
     token = request.args.get("token")

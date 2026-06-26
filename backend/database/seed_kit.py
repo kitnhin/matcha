@@ -12,7 +12,7 @@ conn = psycopg2.connect(os.getenv('DATABASE_URL'))
 cur = conn.cursor()
 
 # kit
-with open("./photo/cat.webp", "rb") as f:
+with open("./photo/elaina.jpg", "rb") as f:
     pfp = base64.b64encode(f.read()).decode()
 
 username = "kit"
@@ -46,7 +46,7 @@ for tag in tags:
 
 
 #kit2
-with open("./photo/cat2.png", "rb") as f:
+with open("./photo/carlotta.jpg", "rb") as f:
     pfp = base64.b64encode(f.read()).decode()
 
 username = "kit2"

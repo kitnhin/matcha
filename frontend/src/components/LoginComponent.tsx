@@ -63,6 +63,11 @@ const LoginComponent: React.FC<LoginComponentProps> = ({ setIsLoggedIn }) => {
     event.preventDefault();
     setForgotPasswordLoading(true);
 
+    const timeout = setTimeout(() => {
+        setForgotPasswordError("Request timed out. Please try again later.");
+        setForgotPasswordLoading(false);
+    }, 10000)
+
     fetch(`${BACKEND_URL}/auth/forgot-password`, {
       method: "POST",
       credentials: "include",
@@ -82,6 +87,7 @@ const LoginComponent: React.FC<LoginComponentProps> = ({ setIsLoggedIn }) => {
           setForgotPasswordError(data.errorMessage);
           console.log("Forgot password error:", data.errorMessage);
         }
+        clearTimeout(timeout);
         setForgotPasswordLoading(false);
       });
   };

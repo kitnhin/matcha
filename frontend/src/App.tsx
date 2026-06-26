@@ -54,7 +54,7 @@ function App() {
           <Route element={<MainLayout setIsLoggedIn={setIsLoggedIn}/>}>
             <Route
               path="/home"
-              element={<HomeComponent setIsLoggedIn={setIsLoggedIn} />}
+              element={<HomeComponent />}
             />
 
             <Route

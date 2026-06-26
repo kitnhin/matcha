@@ -28,6 +28,12 @@ const RegisterComponent: React.FC<RegisterComponentProps> = ({}) => {
       return;
     }
 
+    const timeout = setTimeout(() => {
+        setRegisterError("Registration process failed. Please try again later.");
+        setRegisterLoading(false);
+      }, 10000); //10s timeout
+    
+
     fetch(`${BACKEND_URL}/auth/register`, {
       method: "POST",
       credentials: "include",
@@ -44,6 +50,7 @@ const RegisterComponent: React.FC<RegisterComponentProps> = ({}) => {
     })
       .then((response: Response) => response.json())
       .then((data: { registerStatus: string; errorMessage: string }) => {
+        clearTimeout(timeout);
         if (data.registerStatus === "success") {
           setRegisterDone(true);
         } else {

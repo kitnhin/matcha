@@ -1,0 +1,17 @@
+IV 1:
+
+registration:
+basic
+invalid email, username, pw
+email timeout
+
+login:
+basic
+wrong username
+wrong pw
+
+forgotpw:
+basic
+timeout
+invalid email, pw
+invalid link
