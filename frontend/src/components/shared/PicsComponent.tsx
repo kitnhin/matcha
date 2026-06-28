@@ -153,6 +153,7 @@ const PicsComponent: React.FC<PicsComponentProps> = ({
                     />
                     <button
                       className="text-sm text-red-500"
+                      type="button"
                       onClick={() => deleteExtraPic(i)}
                     >
                       Delete

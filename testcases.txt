@@ -1,9 +1,11 @@
-IV 1:
+IV 1: (auth)
 
 registration:
 basic
-invalid email, username, pw
+invalid email, username
+short pw, common pw
 email timeout
+invalid link
 
 login:
 basic
@@ -13,5 +15,53 @@ wrong pw
 forgotpw:
 basic
 timeout
-invalid email, pw
+invalid email
+short pw, common pw
 invalid link
+
+IV2: (profile setup)
+
+setup and settings:
+basic
+reset basic
+invalid gender, sex pref, age, location
+invalid username, email
+
+IV3: (browse)
+
+filter:
+basic
+invalid fields
+
+sort:
+basic
+
+IV4: (research)
+
+filter:
+basic
+invalid
+
+search:
+basic
+invalid
+
+sort:
+basic
+
+IV5: (visit prof)
+
+like + dislike
+no pfp like + dislike
+connected + disconnected
+connected + chat
+disconnected + chat
+block user
+
+IV6: (chat)
+
+basic
+empty
+
+IV7: (notif)
+basic

@@ -25,6 +25,7 @@ const RegisterComponent: React.FC<RegisterComponentProps> = ({}) => {
 
     if (password1 !== password2) {
       setRegisterError("Password mismatch");
+      setRegisterLoading(false);
       return;
     }
 

@@ -5,7 +5,7 @@ import secrets
 from extensions import conn, cur, mail
 import os
 import base64
-from utils.auth_utils import check_register_input, check_setup_input, check_login_input, check_pics_size
+from utils.auth_utils import check_register_input, check_setup_input, check_login_input, check_password
 from email_validator import validate_email, EmailNotValidError
 
 auth_bp = Blueprint('auth', __name__)
@@ -190,13 +190,9 @@ def save_forgot_password():
         return {"saveStatus" : "fail", "errorMessage" : "Invalid or expired token"}
 
     #verify password
-    common_pw_file = "./others/common_passwords.txt"
-    if len(password) < 2:
-        return {"saveStatus" : "fail", "errorMessage" : "Password too short"}
-    with open(common_pw_file) as f:
-        common_passwords = set(f.read().splitlines())
-        if password in common_passwords:
-            return {"saveStatus" : "fail", "errorMessage" : "Password too common"}
+    check_password_res = check_password(password)
+    if check_password_res["status"] == "fail":
+            return {"saveStatus" : "fail", "errorMessage" : check_password_res["errorMessage"]}
     
     #update password in db
     hashed_pw = bcrypt.hashpw(data["password"].encode('utf-8'), bcrypt.gensalt()) #hash pw first

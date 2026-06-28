@@ -171,7 +171,7 @@ def handle_like_profile(ws, user_id, obj):
                 {
                     "type": "likeProfileStatus",
                     "status": "fail",
-                    "errorMessage": "Pfp required to like others",
+                    "errorMessage": "Pfp is required to like or dislike others",
                     "likeStatus": not obj.get("like_status"),
                 }
             )

@@ -141,7 +141,7 @@ const VisitProfileComponent: React.FC<VisitProfileComponentProps> = ({
                         Online
                       </p>
                     ) : (
-                      <p className="text-green-600 text-sm">
+                      <p className="text-gray-400 text-sm">
                         Last online: {profile.onlineStatus}
                       </p>
                     )}
@@ -149,14 +149,14 @@ const VisitProfileComponent: React.FC<VisitProfileComponentProps> = ({
 
                   <div className="flex ml-auto gap-2">
                     {reportStatus ? (
-                      <div className="flex flex-col ml-auto items-center justify-center text-green-400">
+                      <div className="flex flex-col ml-auto items-center justify-center text-gray-500">
                         <button>
                           <FiAlertTriangle className="w-5 h-5" />
                         </button>
                         <p className="text-xs font-bold">Reported</p>
                       </div>
                     ) : (
-                      <div className="flex flex-col ml-auto items-center justify-center text-green-700">
+                      <div className="flex flex-col ml-auto items-center justify-center text-green-600">
                         <button onClick={() => handleReport()}>
                           <FiAlertTriangle className="w-5 h-5" />
                         </button>
@@ -164,7 +164,7 @@ const VisitProfileComponent: React.FC<VisitProfileComponentProps> = ({
                       </div>
                     )}
 
-                    <div className="flex flex-col ml-auto items-center justify-center text-green-700">
+                    <div className="flex flex-col ml-auto items-center justify-center text-green-600">
                       <button onClick={() => setShowBlockConfirm(true)}>
                         <FiUserX className="w-5 h-5" />
                       </button>
@@ -178,7 +178,7 @@ const VisitProfileComponent: React.FC<VisitProfileComponentProps> = ({
                   <p>{`Last Name: ${profile.lastName}`}</p>
                   <p>{`Age: ${profile.age}`}</p>
                   {profile.tags.length > 0 && (
-                    <div className="flex gap-2 items-center">
+                    <div className="flex gap-2 items-center flex-wrap">
                       <p>Tags:</p>
                       {profile.tags.map((tag, i) => (
                         <div

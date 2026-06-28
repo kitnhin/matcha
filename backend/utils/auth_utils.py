@@ -6,7 +6,7 @@ import base64
 
 #configurables
 username_length = 3
-password_length = 2
+password_length = 8
 
 def check_register_input(data):
     check_email_res = check_email(data["email"])
@@ -30,7 +30,7 @@ def check_setup_input(request):
     extra_pics = request.files.getlist("extra_pics")
 
     check_other_fields_res = check_other_fields(
-        data.get("gender", ""), data.get("sexual_preference", ""), int(data.get("age", "")), 
+        data.get("gender", ""), data.get("sexual_preference", ""), data.get("age", ""), 
         data.get("location", ""), data.get("latitude"), data.get("longitude"))
     
     if check_other_fields_res["status"] == "fail":
@@ -53,7 +53,7 @@ def check_login_input(data):
     if len(data["username"]) < username_length:
         return {"loginStatus" : "fail", "errorMessage" : "Invalid username or password"}
     
-    if len(data["password"]) < password_length:
+    if len(data["password"]) < password_length  and data["password"] != "123": #hardcode pw this so easier for testing
         return {"loginStatus" : "fail", "errorMessage" : "Invalid username or password"}
     
     return {"loginStatus" : "success"}
@@ -105,6 +105,9 @@ def check_email(email, user_id=None):
     return {"status" : "success"}
 
 def check_password(password):
+    print("TY", password)
+    if password == "123": #hardcode pw this so easier for testing 
+        return {"status" : "success"}
     common_pw_file = "./others/common_passwords.txt"
     if len(password) < password_length:
         return {"status" : "fail", "errorMessage" : "Password too short"}
@@ -121,7 +124,11 @@ def check_other_fields(gender, sexual_preference, age, location, lat, long):
     if len(sexual_preference) < 1:
         return {"status" : "fail", "errorMessage" : "Select a sexual preference"}
 
-    if int(age) < 1 or int(age) > 200:
+    if isinstance(age, str):
+        if not age.strip().isdigit() or age.strip() == "":
+            return {"status" : "fail", "errorMessage" : "Invalid age"}
+        age = int(age.strip())
+    if age < 1 or age > 200:
         return {"status" : "fail", "errorMessage" : "Invalid age"}
 
     if not location or lat is None or long is None:

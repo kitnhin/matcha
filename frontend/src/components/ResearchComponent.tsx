@@ -15,7 +15,6 @@ import {
 interface ResearchComponentProps {}
 
 const ResearchComponent: React.FC<ResearchComponentProps> = ({}) => {
-  const navigate = useNavigate();
   const AVAILABLE_TAGS = [
     "vegan",
     "geek",
@@ -45,10 +44,11 @@ const ResearchComponent: React.FC<ResearchComponentProps> = ({}) => {
   const [showProfileId, setShowProfileId] = useState<number>(-2);
 
   const [selectedLocation, setSelectedLocation] = useState<Location | null>(
-    null,
+    null
   );
 
   const [displaySearch, setDisplaySearch] = useState<boolean>(true);
+  const [errorMessage, setErrorMessage] = useState<string>("");
 
   const limit = 6;
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -60,27 +60,31 @@ const ResearchComponent: React.FC<ResearchComponentProps> = ({}) => {
     // WS.setup();
 
     WS.add_callback("researchData", (message) => {
-      setLoading(false);
-      setProfiles((prev) => {
-        const combined = [...prev, ...message.profiles];
-        const unique = [];
-        const seen = new Set();
+      if (message.status === "success") {
+        setLoading(false);
+        setProfiles((prev) => {
+          const combined = [...prev, ...message.profiles];
+          const unique = [];
+          const seen = new Set();
 
-        for (const profile of combined) {
-          if (!seen.has(profile.username)) {
-            seen.add(profile.username);
-            unique.push(profile);
+          for (const profile of combined) {
+            if (!seen.has(profile.username)) {
+              seen.add(profile.username);
+              unique.push(profile);
+            }
           }
+
+          return unique;
+        }); //need to pass in ft if not it will use the array at the start instead of the current one
+        setOffset((prev) => prev + message.profiles.length);
+        if (message.profiles.length < limit) {
+          setHasMore(false);
         }
-
-        return unique;
-      }); //need to pass in ft if not it will use the array at the start instead of the current one
-      setOffset((prev) => prev + message.profiles.length);
-      if (message.profiles.length < limit) {
-        setHasMore(false);
+        setDisplaySearch(false);
+        setErrorMessage("");
+      } else {
+        setErrorMessage(message.errorMessage);
       }
-
-      setDisplaySearch(false);
     });
 
     setDisplaySearch(true);
@@ -270,6 +274,15 @@ const ResearchComponent: React.FC<ResearchComponentProps> = ({}) => {
             selectedLocation={selectedLocation}
             setSelectedLocation={setSelectedLocation}
           />
+          <p className="text-xs text-gray-400">(Leave empty to search all locations)</p>
+
+          {errorMessage && (
+            <div>
+              <p className="rounded-lg bg-red-50 px-3 py-2 text-center text-sm text-red-600">
+                {errorMessage}
+              </p>
+            </div>
+          )}
           <div className="flex gap-2 mt-2">
             <button
               type="button"

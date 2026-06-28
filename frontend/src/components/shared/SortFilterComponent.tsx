@@ -1,5 +1,6 @@
 import "../../App.css";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import WS from "../../class/ws";
 
 export interface SortFilterSpecs {
   sortBy: string;
@@ -29,6 +30,18 @@ export const SortFilterComponent: React.FC<SortFilterComponentProps> = ({
 }) => {
   const [showSort, setShowSort] = useState<boolean>(false);
   const [showFilter, setShowFilter] = useState<boolean>(false);
+  const [errorMessage, setErrorMessage] = useState<string>("");
+
+  useEffect(() => {
+    WS.add_callback("filterStatus", (message) => {
+        if (message.status === "fail") {
+            setErrorMessage(message.errorMessage);
+        } else {
+            setErrorMessage("");
+            setShowFilter(false);
+        }
+    })
+  }, []);
 
   return (
     <div className="absolute right-5 gap-4 flex">
@@ -60,7 +73,7 @@ export const SortFilterComponent: React.FC<SortFilterComponentProps> = ({
                 >
                   {option}
                 </button>
-              ),
+              )
             )}
             <button
               onClick={() => {
@@ -180,10 +193,17 @@ export const SortFilterComponent: React.FC<SortFilterComponentProps> = ({
               />
             </div>
 
+            {errorMessage && (
+              <div>
+                <p className="rounded-lg bg-red-50 px-3 py-2 text-center text-sm text-red-600">
+                  {errorMessage}
+                </p>
+              </div>
+            )}
+
             <button
               onClick={() => {
                 handleFilterSubmit();
-                setShowFilter(false);
               }}
               className="rounded-xl bg-green-700 text-white px-4 py-2 text-sm font-bold hover:bg-green-800 my-2"
             >

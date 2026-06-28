@@ -60,9 +60,18 @@ const BrowseComponent: React.FC<BrowseComponentProps> = ({}) => {
         setHasMore(false);
       }
     });
-
-    sendWSRequest(sortFilterSpecs.sortBy, sortFilterSpecs.order, offset);
   }, []);
+
+  useEffect(() => {
+    if (!showProfile) {
+      setProfiles([]);
+      setOffset(0);
+      setHasMore(true);
+      setLoading(false);
+
+      sendWSRequest(sortFilterSpecs.sortBy, sortFilterSpecs.order, 0);
+    }
+  }, [showProfile]);
 
   function sendWSRequest(sortBy: string, order: string, offset: number) {
     WS.send({

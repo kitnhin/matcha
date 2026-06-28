@@ -2,13 +2,20 @@ from extensions import conn, cur
 import json
 import math
 from classes.profile import Profile
+from pages.browse import check_filter
 
 def calc_distance(lat1, long1, lat2, long2):
     return math.sqrt((lat1 - lat2)**2 + (long1 - long2)**2)
 
 
 def get_research_data(ws, user_id, obj):
-    print(obj)
+    #check input
+    filter_check_res = check_filter(obj)
+    if filter_check_res["status"] == "fail":
+        ws.send(json.dumps({"type": "researchData", "status": "fail", "errorMessage": filter_check_res["errorMessage"]}))
+        ws.send(json.dumps({"type": "filterStatus", "status": "fail", "errorMessage": filter_check_res["errorMessage"]}))
+        return
+
     #get user info
     cur.execute("SELECT tag from tags WHERE user_id = %s", (user_id,))
     user_tags = set(row[0] for row in cur.fetchall())
@@ -22,8 +29,9 @@ def get_research_data(ws, user_id, obj):
     #get all tags
     id_list = [p[0] for p in profiles]
     if not id_list:
-        ws.send(json.dumps({"type": "browseData", "profiles": [], "errorMessage": "db empty i think"}))
+        ws.send(json.dumps({"type": "researchData", "status": "fail", "profiles": [], "errorMessage": "db empty"}))
         return
+
     cur.execute("SELECT user_id, tag FROM tags WHERE user_id IN %s", (tuple(id_list),))
     tag_rows = cur.fetchall()
     p_tags_mp = {}
@@ -76,4 +84,5 @@ def get_research_data(ws, user_id, obj):
     
 
     send_profiles = [p.to_dict() for p in profile_list[offset:offset + limit]]
-    ws.send(json.dumps({"type": "researchData", "profiles": send_profiles}))
+    ws.send(json.dumps({"type": "researchData", "status": "success", "profiles": send_profiles}))
+    ws.send(json.dumps({"type": "filterStatus", "status": "success"}))

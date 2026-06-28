@@ -76,10 +76,10 @@ def save_settings(ws, user_id, obj):
     conn.commit()
 
     # store user data
-    cur.execute("UPDATE users set username = %s, first_name = %s, last_name = %s, "
+    cur.execute("UPDATE users set email = %s, username = %s, first_name = %s, last_name = %s, "
                 "gender = %s, sexual_preference = %s, age = %s, biography = %s,"
                 "location = %s, latitude = %s, longitude = %s, profile_pic = %s WHERE id = %s", 
-                (obj.get("username"), obj.get("first_name"), obj.get("last_name"),
+                (obj.get("email"), obj.get("username"), obj.get("first_name"), obj.get("last_name"),
                  obj.get("gender"), obj.get("sexual_preference"), obj.get("age"), obj.get("bio"),
                  obj.get("location"), obj.get("latitude"), obj.get("longitude"), obj.get("profile_pic"),
                  user_id,))

@@ -8,6 +8,12 @@ def calc_distance(lat1, long1, lat2, long2):
 
 
 def get_browse_data(ws, user_id, obj):
+    #check input
+    filter_check_res = check_filter(obj)
+    if filter_check_res["status"] == "fail":
+        ws.send(json.dumps({"type": "filterStatus", "status": "fail", "errorMessage": filter_check_res["errorMessage"]}))
+        return
+
     #get user info
     cur.execute("SELECT gender, sexual_preference, age, latitude, longitude FROM users WHERE id = %s", (user_id,))
     user = cur.fetchone()
@@ -26,7 +32,7 @@ def get_browse_data(ws, user_id, obj):
     #get all tags
     id_list = [p[0] for p in profiles]
     if not id_list:
-        ws.send(json.dumps({"type": "browseData", "profiles": [], "errorMessage": "db empty i think"}))
+        ws.send(json.dumps({"type": "filterStatus", "profiles": [], "errorMessage": "db empty i think"}))
         return
     cur.execute("SELECT user_id, tag FROM tags WHERE user_id IN %s", (tuple(id_list),))
     tag_rows = cur.fetchall()
@@ -73,13 +79,32 @@ def get_browse_data(ws, user_id, obj):
 
     #filter
     profile_list = [p for p in profile_list if 
-                    (obj.get("min_age") <= p.age <= obj.get("max_age", 0)) and
-                    (obj.get("min_fame") <= p.fame <= obj.get("max_fame")) and
-                    (p.common_tags >= obj.get("min_common_tags")) and
-                    (p.distance <= obj.get("max_distance"))]
+                    (obj.get("min_age", 0) <= p.age <= obj.get("max_age", 200)) and
+                    (obj.get("min_fame", 0) <= p.fame <= obj.get("max_fame", 200)) and
+                    (p.common_tags >= obj.get("min_common_tags", 0)) and
+                    (p.distance <= obj.get("max_distance", 100000))]
     
 
     send_profiles = [p.to_dict() for p in profile_list[offset:offset + limit]]
     ws.send(json.dumps({"type": "browseData", "profiles": send_profiles}))
+    ws.send(json.dumps({"type": "filterStatus", "status": "success"}))
 
+
+def check_filter(obj):
+    min_age = obj.get("min_age")
+    max_age = obj.get("max_age")
+    min_fame = obj.get("min_fame")
+    max_fame = obj.get("max_fame")
+    min_common_tags = obj.get("min_common_tags")
+    max_distance = obj.get("max_distance")
+
+    if min_age is None or max_age is None or min_age < 0 or max_age > 200:
+        return {"status": "fail", "errorMessage": "Invalid age"}
+    if min_fame is None or max_fame is None or min_fame < 0 or max_fame > 200:
+        return {"status": "fail", "errorMessage": "Invalid fame"}
+    if min_common_tags is None or min_common_tags < 0:
+        return {"status": "fail", "errorMessage": "Invalid common tags"}
+    if max_distance is None or max_distance < 0:
+        return {"status": "fail", "errorMessage": "Invalid distance"}
+    return {"status": "success"}
 
